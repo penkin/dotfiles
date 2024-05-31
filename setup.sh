@@ -12,16 +12,23 @@ base=(
 useronly=(
   .config
   .zsh
+  Wallpapers
 )
 
 # run the stow command for the passed in directory ($2) in location $1
 stowit() {
-    usr=$1
+    dir=$1
     app=$2
     # -v verbose
     # -R recursive
     # -t target
-    stow -v -R -t ${usr} ${app}
+
+    # Check if the directory exists. If not create it.
+    if [ ! -d "$dir" ]; then
+      mkdir $dir
+    fi
+
+    stow -v -R -t ${dir} ${app}
 }
 
 echo ""
