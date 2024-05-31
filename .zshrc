@@ -34,16 +34,21 @@ function yy() {
 }
 
 # Exports
+export PATH="$HOME/.tmux/plugins/tmuxifier/bin/:$PATH"
 export EDITOR='nvim'
 export DOT="$HOME/Sandbox/Personal/dotfiles"
+
+# Evals
+eval "$(tmuxifier init -)"
+eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"
 
 # Aliases
 alias p='paru'
 alias vi='nvim'
 alias vim='nvim'
 alias mkdir='mkdir -p'
+alias cd='z'
 alias ls='eza --icons=auto'
 alias lh='eza --icons=auto -lha'
-
-# Evals
-eval "$(starship init zsh)"
+alias txl='tmuxifier load-session'
