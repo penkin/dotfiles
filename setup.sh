@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # make sure we have pulled in and updated any submodules
-# git submodule init
-# git submodule update
+git submodule init
+git submodule update
 
 # what directories should be installable by all users including the root user
 base=(
@@ -10,7 +10,7 @@ base=(
 
 # folders that should, or only need to be installed for a local user
 useronly=(
-  .config,
+  .config
   .zsh
 )
 
