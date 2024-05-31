@@ -37,5 +37,5 @@ chmod +x stowsync.sh
 
 ## TODO:
 
-[ ] Create an Arch setup script to install all the packages needed.
-[ ] Create a OSX setup script to install all the packages needed.
+ - Create an Arch setup script to install all the packages needed.
+ - Create a OSX setup script to install all the packages needed.
