@@ -38,9 +38,9 @@ export EDITOR='nvim'
 export DOT="$HOME/Sandbox/Personal/dotfiles"
 
 # Aliases
+alias p='paru'
 alias vi='nvim'
 alias vim='nvim'
-alias nano='nvim'
 alias mkdir='mkdir -p'
 alias ls='eza --icons=auto'
 alias lh='eza --icons=auto -lha'
