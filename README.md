@@ -17,22 +17,15 @@ brew install stow
 sudo pacman -S stow
 ```
 
-Once you have GNU Stow install you can clone this repo to your machine.
+Once you have GNU Stow install you can clone this repo the `$HOME` directory
+of your machine.
 
 ## Syncing your dotfiles
 
-Go into your the directory where you have cloned this repo and set the
-environment variable for `stow` to know where your dotfiles are.
+To sync your dotfiles simply run the following from your `dotfiles` derectory.
 
 ```shell
-export DOT=$Home/...
-```
-
-Then you can run the script to setup all the symlinks.
-
-```shell
-chmod +x stowsync.sh
-./stowsync.sh
+stow .
 ```
 
 ## TODO:
