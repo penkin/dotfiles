@@ -5,6 +5,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Theme
+source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
+
 # Zinit setup
 ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
 
@@ -52,7 +55,7 @@ bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
 
 # History
-HISTSIZE=5000
+HISTSIZE=10000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
@@ -85,3 +88,19 @@ alias txl='tmuxifier load-session'
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 eval "$(tmuxifier init -)"
+
+
+# Directory for client-specific scripts
+SCRIPTS_DIR="$HOME/.zsh-scripts"
+
+# Check if the client directory exists
+if [ -d "$SCRIPTS_DIR" ]; then
+  # Loop through all the shell scripts in the client directory
+  for FILE in "$SCRIPTS_DIR"/*.sh; do
+    # Check if the script file exists
+    if [ -f "$FILE" ]; then
+      # Source the script
+      source "$FILE"
+    fi
+  done
+fi
