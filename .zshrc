@@ -15,6 +15,14 @@ fi
 
 source "${ZINIT_HOME}/zinit.zsh"
 
+# Tmuxifier setup
+TMUXIFIER_HOME="${HOME}/.tmuxifier"
+
+if [ ! -d "$TMUXIFIER_HOME" ]; then
+   mkdir -p "$(dirname $TMUXIFIER_HOME)"
+   git clone https://github.com/jimeh/tmuxifier.git "$TMUXIFIER_HOME"
+fi
+
 # Add Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
@@ -58,14 +66,22 @@ setopt hist_ignore_all_dups
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
-zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=auto $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=auto $realpath'
+
+# Exports
+export PATH="$HOME/.tmuxifier/bin/:$PATH"
+export EDITOR='nvim'
 
 # Aliases
-alias ls='ls --color'
+alias ls='eza --icons=auto'
+alias lh='eza --icons=auto -lha'
 alias vi="nvim"
 alias vim="nvim"
+alias c="clear"
+alias txl='tmuxifier load-session'
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+eval "$(tmuxifier init -)"

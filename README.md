@@ -9,12 +9,17 @@ we need to install it so we can get all our configs in place.
 
 ```shell
 brew install stow
+brew install tmux
+brew install fzf
+brew install eza
+brew install zoxide
+brew install neovim
 ```
 
 ### Arch
 
 ```shell
-sudo pacman -S stow
+sudo pacman -S stow tmux fzf eza zoxide neovim
 ```
 
 Once you have GNU Stow install you can clone this repo the `$HOME` directory
