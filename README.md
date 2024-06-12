@@ -19,7 +19,7 @@ brew install neovim
 ### Arch
 
 ```shell
-sudo pacman -S stow tmux fzf eza zoxide neovim
+sudo pacman -S zsh stow fzf eza zoxide neovim
 ```
 
 Once you have GNU Stow install you can clone this repo the `$HOME` directory
