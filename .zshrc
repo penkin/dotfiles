@@ -18,14 +18,6 @@ fi
 
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Tmuxifier setup
-TMUXIFIER_HOME="${HOME}/.tmuxifier"
-
-if [ ! -d "$TMUXIFIER_HOME" ]; then
-   mkdir -p "$(dirname $TMUXIFIER_HOME)"
-   git clone https://github.com/jimeh/tmuxifier.git "$TMUXIFIER_HOME"
-fi
-
 # Add Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
@@ -82,13 +74,10 @@ alias lh='eza --icons=auto -lha'
 alias vi="nvim"
 alias vim="nvim"
 alias c="clear"
-alias txl='tmuxifier load-session'
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
-eval "$(tmuxifier init -)"
-
 
 # Directory for client-specific scripts
 SCRIPTS_DIR="$HOME/.zsh-scripts"
