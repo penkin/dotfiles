@@ -3,3 +3,5 @@
 [user]
 	email = chris@penkin.me
 	name = Christopher Penkin
+[core]
+	autocrlf = input
