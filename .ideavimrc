@@ -1,0 +1,8 @@
+nnoremap \e :e ~/.ideavimrc<cr>
+nnoremap \r :action IdeaVim.ReloadVimRc.reload<cr>
+
+source ~/.idea-lazy.vim
+
+set easymotion
+
+map s <Plug>(easymotion-s)
