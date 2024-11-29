@@ -1,0 +1,130 @@
+@import "./mocha.css";
+
+* {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+#waybar {
+  background: @mantle;
+  color: @text;
+  font-size: 11px;
+  font-family: "CaskaydiaMono Nerd Font";
+  font-weight: bold;
+}
+
+window#waybar.empty #window {
+  background: none;
+}
+
+#environment,
+#workspaces,
+#window,
+#tray,
+#resources,
+#custom-cava_mviz,
+#custom-appmenu,
+#custom-exit {
+  padding: 0 8px;
+}
+
+#custom-appmenu {
+  background: @blue;
+  color: @mantle;
+  padding-left: 14px;
+  font-size: 17px;
+}
+
+#custom-appmenu:hover {
+  background: @sky;
+}
+
+#workspaces button {
+  padding-right: 4px;
+  color: @text;
+}
+
+#workspaces button:hover {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: white;
+}
+
+#workspaces button.active {
+  color: @red;
+}
+
+#workspaces button.urgent {
+  color: @peach;
+}
+
+#window {
+  font-weight: normal;
+}
+
+#tray {
+  margin-top: 2px;
+}
+
+#clock {
+  color: @sky;
+}
+
+#custom-weather {
+  color: @teal;
+}
+
+#idle_inhibitor {
+  color: @teal;
+}
+
+#battery {
+  color: @green;
+}
+
+#cpu {
+  color: @yellow;
+}
+
+#memory {
+  color: @peach;
+}
+
+#pulseaudio {
+  color: @maroon;
+}
+
+#custom-cava_mviz {
+  color: @mauve;
+}
+
+#custom-exit {
+  padding-left: 10px;
+  color: @red;
+}
+
+#custom-exit:hover {
+  background: @red;
+  color: @mantle;
+}
+
+#custom-powermenu,
+#cpu,
+#custom-weather,
+#temperature,
+#memory,
+#workspaces,
+#custom-changebg,
+#custom-cmus,
+#clock,
+#window,
+#pulseaudio,
+#tray,
+#network,
+#custom-cava_mviz {
+  padding: 6px;
+}

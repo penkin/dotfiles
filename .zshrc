@@ -18,6 +18,14 @@ fi
 
 source "${ZINIT_HOME}/zinit.zsh"
 
+# Tmuxifier setup
+TMUXIFIER_HOME="${HOME}/.tmuxifier"
+
+if [ ! -d "$TMUXIFIER_HOME" ]; then
+   mkdir -p "$(dirname $TMUXIFIER_HOME)"
+   git clone https://github.com/jimeh/tmuxifier.git "$TMUXIFIER_HOME"
+fi
+
 # Add Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
@@ -27,6 +35,8 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light jeffreytse/zsh-vi-mode
 zinit light Aloxaf/fzf-tab
+
+zinit wait lucid for MichaelAquilina/zsh-autoswitch-virtualenv
 
 # Zsh snippets
 zinit snippet OMZP::git
@@ -71,28 +81,39 @@ export EDITOR='nvim'
 # Aliases
 alias ls='eza --icons=auto'
 alias lh='eza --icons=auto -lha'
+alias la='eza --icons=auto -la'
 alias vi="nvim"
 alias vim="nvim"
 alias c="clear"
+alias tx="tmuxifier load-session"
+alias y="yazi"
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+eval "$(tmuxifier init -)"
 
 # Directory for client-specific scripts
-SCRIPTS_DIR="$HOME/.zsh-scripts"
+SOURCE_DIRS=("$HOME/.zsh-scripts" "$HOME/.zsh-secrets")
 
-# Check if the client directory exists
-if [ -d "$SCRIPTS_DIR" ]; then
-  # Loop through all the shell scripts in the client directory
-  for FILE in "$SCRIPTS_DIR"/*.sh; do
-    # Check if the script file exists
-    if [ -f "$FILE" ]; then
-      # Source the script
-      source "$FILE"
-    fi
-  done
+for DIR in "${SOURCE_DIRS[@]}"; do
+  # Check if the directory exists
+  if [ -d "$DIR" ]; then
+    # Loop through all the shell scripts in the directory
+    for FILE in "$DIR"/*.sh; do
+      # Check if the script file exists
+      if [ -f "$FILE" ]; then
+        # Source the script
+        source "$FILE"
+      fi
+    done
+  fi
+done
+
+# Source OS-specific files
+os_name=$(uname | tr '[:upper:]' '[:lower:]')
+os_source="$HOME/.zsh-$os_name.sh"
+
+if [ -f "$os_source" ]; then
+  source "$os_source"
 fi
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"

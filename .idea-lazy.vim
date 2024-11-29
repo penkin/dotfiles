@@ -46,7 +46,7 @@ Plug 'tpope/vim-commentary'
 " s action, such as cs"' (replace " with '), ds" (unquote)
 Plug 'tpope/vim-surround'
 " similar to flash.nvim
-Plug 'justinmk/vim-sneak'
+" Plug 'justinmk/vim-sneak'
 " Enable the whichkey plugin, available on Jetbrains marketplace
 set which-key
 " Extended matching.  A Neovim default plugin.
