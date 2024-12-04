@@ -33,7 +33,7 @@ return {
 
       dap.adapters.mix_task = {
         type = "executable",
-        command = "/home/jean/.local/share/nvim/mason/packages/elixir-ls/debug_adapter.sh",
+        command = "/Users/penkin/.local/share/nvim/mason/packages/elixir-ls/debug_adapter.sh",
         args = {},
       }
 
