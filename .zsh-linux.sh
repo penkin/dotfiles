@@ -1,3 +1,3 @@
-alias p=paru
+# alias p=paru
 
-source /opt/asdf-vm/asdf.sh
+# source /opt/asdf-vm/asdf.sh
