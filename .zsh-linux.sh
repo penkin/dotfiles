@@ -1,3 +1,2 @@
 alias p=paru
-
-source /opt/asdf-vm/asdf.sh
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
