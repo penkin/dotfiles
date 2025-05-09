@@ -1,0 +1,7 @@
+.config/gcloud
+.config/nvim/lazy-lock.json
+.config/zed/conversations
+.config/zed/prompts
+
+.local/share
+.local/state
