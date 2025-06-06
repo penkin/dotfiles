@@ -1,3 +1,6 @@
 theme = catppuccin-mocha
 font-family = "ZedMono Nerd Font"
 font-size = 16
+
+confirm-close-surface = false
+quit-after-last-window-closed = true
