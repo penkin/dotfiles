@@ -1,7 +1,22 @@
-.config/gcloud
-.config/nvim/lazy-lock.json
-.config/zed/conversations
-.config/zed/prompts
+# Runtime data and credentials
+**/gcloud/
+**/.local/share/
+**/.local/state/
 
-.local/share
-.local/state
+# Package-specific runtime files
+nvim/.config/nvim/lazy-lock.json
+macos-tools/.config/zed/conversations/
+macos-tools/.config/zed/prompts/
+
+# OS-specific files
+.DS_Store
+**/.DS_Store
+
+# Backup files
+*.bak
+*~
+
+# IDE
+.idea/
+*.swp
+*.swo
