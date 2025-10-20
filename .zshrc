@@ -18,14 +18,6 @@ fi
 
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Tmuxifier setup
-TMUXIFIER_HOME="${HOME}/.tmuxifier"
-
-if [ ! -d "$TMUXIFIER_HOME" ]; then
-   mkdir -p "$(dirname $TMUXIFIER_HOME)"
-   git clone https://github.com/jimeh/tmuxifier.git "$TMUXIFIER_HOME"
-fi
-
 # Add Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
@@ -75,7 +67,6 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=auto $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=auto $realpath'
 
 # Exports
-export PATH="$HOME/.tmuxifier/bin/:$PATH"
 export EDITOR='nvim'
 
 # Aliases
@@ -85,16 +76,14 @@ alias la='eza --icons=auto -la'
 alias vi="nvim"
 alias vim="nvim"
 alias c="clear"
-alias tx="tmuxifier load-session"
 alias y="yazi"
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
-eval "$(tmuxifier init -)"
 
 # Directory for client-specific scripts
-SOURCE_DIRS=("$HOME/.zsh-scripts" "$HOME/.zsh-secrets")
+SOURCE_DIRS=("$HOME/.zsh_scripts" "$HOME/.zsh_secrets")
 
 for DIR in "${SOURCE_DIRS[@]}"; do
   # Check if the directory exists
@@ -118,18 +107,9 @@ if [ -f "$os_source" ]; then
   source "$os_source"
 fi
 
+
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/penkin/Sandbox/Cloud/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/Sandbox/Cloud/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/penkin/Sandbox/Cloud/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/Sandbox/Cloud/google-cloud-sdk/completion.zsh.inc'; fi
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# Added by Windsurf
-export PATH="/Users/penkin/.codeium/windsurf/bin:$PATH"
-source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
-source /opt/homebrew/opt/chruby/share/chruby/auto.sh
-chruby ruby-3.4.1 # run chruby to see actual version
+if [ -f '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc'; fi

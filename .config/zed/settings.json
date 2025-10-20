@@ -7,13 +7,13 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "base_keymap": "JetBrains",
   "context_servers": {
     "TideWave": {
-      "command": {
-        "path": "/Users/penkin/Sandbox/MCP/mcp-proxy",
-        "args": ["http://localhost:4000/tidewave/mcp"],
-        "env": null
-      },
+      "source": "custom",
+      "command": "/Users/penkin/Sandbox/MCP/mcp-proxy",
+      "args": ["http://localhost:4000/tidewave/mcp"],
+      "env": null,
       "settings": {}
     }
   },
@@ -24,15 +24,14 @@
       "provider": "openai",
       "model": "anthropic/claude-3.7-sonnet"
     },
-    "version": "2"
   },
   "icon_theme": "Catppuccin Mocha",
-  "vim_mode": true,
+  "vim_mode": false,
   "ui_font_size": 16,
   "buffer_font_size": 16,
   "theme": {
     "mode": "system",
-    "light": "One Light",
+    "light": "Ayu Light",
     "dark": "Catppuccin Mocha"
   },
   "terminal": {
@@ -48,7 +47,6 @@
           "max_tokens": 200000
         }
       ],
-      "version": "1"
     }
   }
 }
