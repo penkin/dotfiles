@@ -1,0 +1,7 @@
+layout {
+    pane split_direction="horizontal" {
+        pane command="hcloud-db-dev"
+        pane command="hcloud-db-aux"
+    }
+    pane
+}

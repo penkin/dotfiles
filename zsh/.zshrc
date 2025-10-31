@@ -107,6 +107,9 @@ if [ -f "$os_source" ]; then
   source "$os_source"
 fi
 
+# Add scritps in the scripts folder to the path.
+export PATH="$HOME/scripts:$PATH"
+
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc'; fi
