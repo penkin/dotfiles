@@ -1,23 +1,26 @@
 return {
-  {
-    "williamboman/mason.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, {
-        -- LSPs
-        "lua-language-server",
-        "typos-lsp",
-        "basedpyright",
-        "ruff-lsp",
-        "omnisharp",
+    {
+        "williamboman/mason.nvim",
+        opts = function(_, opts)
+            -- Set up custom registries
+            opts.registries = opts.registries or {}
+            vim.list_extend(opts.registries, {
+                "github:mason-org/mason-registry",
+                "github:Crashdummyy/mason-registry",
+            })
 
-        -- Formatters
-        "stylua",
-        "csharpier",
-        "djlint",
-
-        -- Linters
-      })
-    end,
-  },
+            -- Ensure required packages are installed
+            opts.ensure_installed = opts.ensure_installed or {}
+            vim.list_extend(opts.ensure_installed, {
+                "csharpier",
+                "elixirls",
+                "html-lsp",
+                "lua-language-server",
+                "netcoredbg",
+                "roslyn",
+                "rzls",
+                "stylua",
+            })
+        end,
+    },
 }

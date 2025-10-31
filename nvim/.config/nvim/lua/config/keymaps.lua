@@ -1,16 +1,16 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
-local keymap = vim.keymap.set
-
 -- JK for escaping
-keymap("i", "jk", "<esc>")
-keymap("t", "jk", "<c-\\><c-n>")
+vim.keymap.set("i", "jk", "<esc>")
+vim.keymap.set("t", "jk", "<c-\\><c-n>")
 
--- Tabs
-keymap("n", "<Tab>", ":tabnext<CR>", { desc = "Next tab" })
-keymap("n", "<S-Tab>", ":tabprevious<CR>", { desc = "Previous tab" })
-keymap("n", "<leader><Tab>r", ":Tabby rename_tab ", { desc = "Rename tab" })
+-- Navigation between splits
+vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
--- Oil
-keymap("n", "-", "<cmd>Oil<cr>", { desc = "Open Oil" })
+-- Clear highlights on search when pressing <Esc> in normal mode
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+
+-- Move between buffers
+vim.keymap.set("n", "<leader>bn", "<cmd>bn<cr>")
+vim.keymap.set("n", "<leader>bp", "<cmd>bp<cr>")

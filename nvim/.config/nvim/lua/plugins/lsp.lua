@@ -1,64 +1,50 @@
 return {
-  "neovim/nvim-lspconfig",
-  opts = {
-    autoformat = true,
-
-    servers = {
-
-      typos_lsp = {},
-      lua_ls = {},
-      ts_ls = {},
-      gdscript = {},
-      gdshader_lsp = {},
-
-      basedpyright = {
-        capabilities = vim.lsp.protocol.make_client_capabilities(),
-        settings = {
-          basedpyright = {
-            disableOrganizeImports = true,
-          },
-          python = {
-            analysis = {
-              ignore = { "*" },
-            },
-          },
-        },
-      },
-
-      ruff_lsp = {
-        on_attach = function(client, bufnr)
-          vim.api.nvim_create_autocmd("BufWritePre", {
-            buffer = bufnr,
-            callback = function()
-              vim.lsp.buf.code_action({
-                context = { only = { "source.organizeImports" } },
-                apply = true,
-              })
-              vim.wait(100)
-            end,
-          })
+    {
+        "williamboman/mason.nvim",
+        lazy = false,
+        config = function()
+            require("mason").setup({
+                registries = {
+                    "github:mason-org/mason-registry",
+                    "github:crashdummyy/mason-registry",
+                },
+            })
         end,
-      },
-
-      elixirls = {
-        cmd = { "elixir-ls" },
-        settings = {
-          elixirLs = {
-            dialyzerEnabled = true,
-            fetchDeps = true,
-            suggestSpecs = true,
-          },
-        },
-      },
-
-      omnisharp = {
-        cmd = {
-          "/usr/local/bin/omnisharp-roslyn/OmniSharp",
-          "--languageserver",
-          "-s",
-          vim.fn.getcwd() .. "/" .. vim.fn.findfile("*.sln"),
-        },
-      },
     },
-  },
+
+    {
+        "williamboman/mason-lspconfig.nvim",
+        lazy = false,
+        config = function()
+            require("mason-lspconfig").setup({
+                auto_install = true,
+            })
+        end,
+    },
+
+    {
+        "neovim/nvim-lspconfig",
+        lazy = false,
+        config = function()
+            local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+            -- Configure Expert
+            vim.lsp.config('expert', {
+                cmd = { "/home/penkin/expert_linux_amd64" },
+                capabilities = capabilities,
+            })
+
+            -- Configure lua_ls
+            vim.lsp.config('lua_ls', {
+                capabilities = capabilities,
+                settings = {
+                    Lua = {
+                        diagnostics = {
+                            globals = { "vim" },
+                        },
+                    },
+                },
+            })
+        end,
+    },
 }
