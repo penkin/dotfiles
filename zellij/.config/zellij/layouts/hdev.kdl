@@ -1,0 +1,20 @@
+layout {
+    pane split_direction="vertical" {
+        pane split_direction="horizontal" {
+            pane name="MOBI" command="zsh" {
+                args "-ic" "hrun-mobi; exec zsh"
+            }
+            pane name="CMS" command="zsh" {
+                args "-ic" "hrun-cms; exec zsh"
+            }
+        }
+        pane split_direction="horizontal" {
+            pane name="IDENTITY" command="zsh" {
+                args "-ic" "hrun-identity; exec zsh"
+            }
+            pane name="QM" command="zsh" {
+                args "-ic" "hrun-qm; exec zsh"
+            }
+        }
+    }
+}
