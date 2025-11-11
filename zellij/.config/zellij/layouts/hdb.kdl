@@ -1,6 +1,5 @@
 layout {
     pane split_direction="vertical" {
-        pane name="TERMINAL"
         pane split_direction="horizontal" {
             pane name="DB DEV" command="zsh" {
                 args "-ic" "hcloud-db-dev; exec zsh"
@@ -9,5 +8,6 @@ layout {
                 args "-ic" "hcloud-db-aux; exec zsh"
             }
         }
+        pane name="TERMINAL"
     }
 }
