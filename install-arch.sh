@@ -77,6 +77,7 @@ CORE_PACKAGES=(
     zoxide
     neovim
     zellij
+    ripgrep
 )
 install_packages "${CORE_PACKAGES[@]}"
 echo ""
