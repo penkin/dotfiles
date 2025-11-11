@@ -116,3 +116,16 @@ if [ -f '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc'; fi
+
+# Add neovim mason bin to the PATH.
+export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
+
+# Set up dotnet if installed via asdf
+if command -v asdf &> /dev/null; then
+    DOTNET_ROOT_PATH="$(asdf where dotnet 2>/dev/null)"
+
+    if [ -n "$DOTNET_ROOT_PATH" ]; then
+        export DOTNET_ROOT="$DOTNET_ROOT_PATH"
+        export PATH="$PATH:$HOME/.dotnet/tools"
+    fi
+fi
