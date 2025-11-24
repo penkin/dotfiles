@@ -20,3 +20,5 @@ macos-tools/.config/zed/prompts/
 .idea/
 *.swp
 *.swo
+.shada
+.nvim.lua

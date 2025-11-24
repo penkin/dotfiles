@@ -3,7 +3,7 @@ return {
     "mfussenegger/nvim-dap",
     config = function()
       local dap = require("dap")
-      require("dap").set_log_level("TRACE")
+
       vim.fn.mkdir(vim.fn.stdpath("cache") .. "/dap", "p")
 
       -- Setup Elixir debugger

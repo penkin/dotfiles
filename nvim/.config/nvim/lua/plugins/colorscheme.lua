@@ -1,51 +1,47 @@
 return {
-    {
-        "vague-theme/vague.nvim",
-        priority = 1000,
-        config = function()
-            -- vim.cmd.colorscheme("vague")
+  {
+    "folke/tokyonight.nvim",
+    priority = 1000,
+    config = function()
+      require("tokyonight").setup({
+        on_highlights = function(hl, colors)
+          hl.CursorLine = { bg = "#1e293b" }
+          hl.DapBreakpoint = { fg = colors.red }
+          hl.DapBreakpointLine = { bg = "#2d1a1a" }
+          hl.DapStopped = { fg = colors.green }
+          hl.DapStoppedLine = { bg = "#1a2d1a" }
+          -- hl.VisualMagenta = { bg = "#351a42" }
 
-            -- Only set custom statusline highlights if using vague colorscheme
-            if vim.g.colors_name == "vague" then
-                local colors = require("vague.config.internal").current.colors
-
-                vim.api.nvim_set_hl(0, "MiniStatuslineFilename", {
-                    fg = colors.fg,
-                    bg = colors.inactiveBg,
-                })
-                vim.api.nvim_set_hl(0, "MiniStatuslineInactive", {
-                    fg = colors.comment,
-                    bg = colors.inactiveBg,
-                })
-            end
+          -- Cursor colors for different modes
+          hl.CursorNormal = { bg = colors.blue, fg = colors.bg }
+          hl.CursorInsert = { bg = colors.green, fg = colors.bg }
+          hl.CursorVisual = { bg = colors.magenta, fg = colors.bg }
+          hl.CursorReplace = { bg = colors.red, fg = colors.bg }
+          hl.CursorCommand = { bg = "#e0af68", fg = colors.bg }
+          hl.CursorTerminal = { bg = "#9ece6a", fg = colors.bg }
         end,
-    },
-    {
-        "folke/tokyonight.nvim",
-        priority = 1000,
-    },
-    {
-        "catppuccin/nvim",
-        name = "catppuccin",
-        priority = 1000,
-        config = function(_, opts)
-            require("catppuccin").setup(opts)
-            vim.cmd.colorscheme("catppuccin")
+      })
+      vim.cmd.colorscheme("tokyonight-night")
 
-            -- Make neotest and quickfix windows use darker background
-            vim.api.nvim_create_autocmd("FileType", {
-                pattern = { "neotest-output-panel", "neotest-summary", "qf" },
-                callback = function()
-                    vim.opt_local.winhighlight = "Normal:NormalFloat,NormalNC:NormalFloat"
-                end,
-            })
+      -- Set cursor mode
+      vim.opt.guicursor = {
+        "n-v:block-CursorNormal",
+        "c:block-CursorCommand-blinkwait700-blinkon400-blinkoff250",
+        "i-ci-ve:ver10-CursorInsert-blinkwait700-blinkon400-blinkoff250",
+        "v-ve:block-CursorVisual",
+        "r-cr:hor10-CursorReplace-blinkwait700-blinkon400-blinkoff250",
+        "o:hor50-CursorNormal",
+      }
 
-            -- Make regular terminal windows use darker background
-            vim.api.nvim_create_autocmd("TermOpen", {
-                callback = function()
-                    vim.opt_local.winhighlight = "Normal:NormalFloat,NormalNC:NormalFloat"
-                end,
-            })
-        end,
-    },
+      -- -- Apply magenta visual only to normal buffers
+      -- vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+      --   callback = function()
+      --     local ft = vim.bo.filetype
+      --     if not ft:match("^snacks") and ft ~= "" then
+      --       vim.wo.winhighlight = "Visual:VisualMagenta"
+      --     end
+      --   end,
+      -- })
+    end,
+  },
 }
