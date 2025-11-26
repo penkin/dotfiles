@@ -1,0 +1,87 @@
+# This is a demo config to showcase some of the most important commands.
+# It is meant to be changed and configured, as it is intentionally kept sparse.
+# For a (much) more advanced configuration example see my dotfiles:
+# https://github.com/FelixKratz/dotfiles
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+
+
+##### Bar Appearance #####
+# https://felixkratz.github.io/SketchyBar/config/bar
+# https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
+
+sketchybar --bar position=top margin=0 y_offset=0 corner_radius=0 height=34 color=0xC0000000
+
+##### Defaults #####
+# https://felixkratz.github.io/SketchyBar/config/items
+
+default=(
+  padding_left=0
+  padding_right=4
+  icon.font="JetBrainsMono Nerd Font:Regular:14.0"
+  label.font="JetBrainsMono Nerd Font:Regular:14.0"
+  icon.color=0xff9e9e9e
+  label.color=0xff9e9e9e
+  icon.highlight_color=0xffffffff
+  label.highlight_color=0xffffffff
+  icon.padding_left=0
+  icon.padding_right=0
+  label.padding_left=4
+  label.padding_right=5
+)
+sketchybar --default "${default[@]}"
+
+
+
+# LEFT: WORKSPACE STUFF
+# Add space items
+for i in {1..10}; do
+  sketchybar --add space space.$i left \
+             --set space.$i \
+                   associated_space=$i \
+                   icon=$i \
+                   script="$PLUGIN_DIR/spaces.sh"
+done
+
+# Subscribe to space change events
+sketchybar --add event space_change
+
+
+# RIGHT:
+sketchybar --add item clock right \
+           --set clock update_freq=10 \
+                       script="$PLUGIN_DIR/clock.sh" \
+                       padding_left=8 \
+                       padding_right=8
+
+sketchybar --add item battery right \
+           --set battery update_freq=10 \
+                         script="$PLUGIN_DIR/battery.sh" \
+                         padding_left=8 \
+                         padding_right=8 \
+           --subscribe battery system_woke power_source_change
+
+sketchybar --add item wifi right \
+           --set wifi update_freq=10 \
+                      script="$PLUGIN_DIR/wifi.sh" \
+                      padding_left=8 \
+                      padding_right=8 \
+           --subscribe wifi wifi_change
+
+sketchybar --add item volume right \
+           --set volume update_freq=1 \
+                        script="$PLUGIN_DIR/volume.sh" \
+                        padding_left=8 \
+                        padding_right=8 \
+           --subscribe volume volume_change
+
+# RIGHT:
+# https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
+# https://felixkratz.github.io/SketchyBar/config/events
+
+#sketchybar --add item clock right \
+#           --set clock update_freq=10  script="$PLUGIN_DIR/clock.sh" \
+
+
+##### Force all scripts to run the first time (never do this in a script) #####
+sketchybar --update

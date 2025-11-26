@@ -43,7 +43,7 @@ if vim.fn.filereadable(shada_path) == 1 then
 end
 
 if vim.g.neovide then
-  vim.o.guifont = "ZedMono Nerd Font:h14"
+  vim.o.guifont = "JetBrainsMono Nerd Font:h14"
   vim.opt.linespace = 4
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_cursor_animation_length = 0
