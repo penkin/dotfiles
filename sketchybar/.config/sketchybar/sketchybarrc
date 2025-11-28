@@ -10,7 +10,23 @@ PLUGIN_DIR="$CONFIG_DIR/plugins"
 # https://felixkratz.github.io/SketchyBar/config/bar
 # https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
 
-sketchybar --bar position=top margin=0 y_offset=0 corner_radius=0 height=34 color=0xC0000000
+# Bar for main display
+sketchybar --bar display=main \
+                position=top \
+                margin=0 \
+                y_offset=0 \
+                corner_radius=0 \
+                height=34 \
+                color=0xC0000000
+
+# Bar for secondary display (if connected)
+sketchybar --bar display=all \
+                position=top \
+                margin=0 \
+                y_offset=0 \
+                corner_radius=0 \
+                height=34 \
+                color=0xC0000000
 
 ##### Defaults #####
 # https://felixkratz.github.io/SketchyBar/config/items
@@ -31,17 +47,31 @@ default=(
 )
 sketchybar --default "${default[@]}"
 
-
-
 # LEFT: WORKSPACE STUFF
-# Add space items
-for i in {1..10}; do
+# Spaces for display 1 (spaces 1-6)
+for i in {1..6}; do
   sketchybar --add space space.$i left \
              --set space.$i \
+                   associated_display=1 \
                    associated_space=$i \
                    icon=$i \
                    script="$PLUGIN_DIR/spaces.sh"
 done
+
+# Spaces for display 2 (spaces 7-12)
+for i in {7..12}; do
+  sketchybar --add space space.$i left \
+             --set space.$i \
+                   associated_display=2 \
+                   associated_space=$((i-6)) \
+                   icon=$i \
+                   script="$PLUGIN_DIR/spaces.sh"
+done
+
+# Subscribe to space change events
+sketchybar --add event space_change
+sketchybar --subscribe space_change space.* space_windows_change display_change
+
 
 # Subscribe to space change events
 sketchybar --add event space_change

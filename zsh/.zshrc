@@ -111,12 +111,6 @@ fi
 export PATH="$HOME/scripts:$PATH"
 
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc'; fi
-
 # Add neovim mason bin to the PATH.
 export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
 
@@ -129,3 +123,10 @@ if command -v asdf &> /dev/null; then
         export PATH="$PATH:$HOME/.dotnet/tools"
     fi
 fi
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/penkin/Sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/Sandbox/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/penkin/Sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/Sandbox/google-cloud-sdk/completion.zsh.inc'; fi
+export PATH="$HOME/.local/bin:$PATH"

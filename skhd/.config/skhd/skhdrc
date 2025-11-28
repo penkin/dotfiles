@@ -1,0 +1,81 @@
+# Terminal
+cmd - return : ghostty
+
+# Window Management
+cmd - w : yabai -m window --close
+cmd - t : yabai -m window --toggle float
+cmd - f : yabai -m window --toggle zoom-fullscreen
+
+# Focus Windows (vim keys)
+cmd - h : yabai -m window --focus west
+cmd - j : yabai -m window --focus south
+cmd - k : yabai -m window --focus north
+cmd - l : yabai -m window --focus east
+
+# Move/Swap Windows
+cmd + shift - h : yabai -m window --swap west
+cmd + shift - j : yabai -m window --swap south
+cmd + shift - k : yabai -m window --swap north
+cmd + shift - l : yabai -m window --swap east
+
+# Resize Windows
+cmd + alt - h : yabai -m window --resize left:-30:0
+cmd + alt - j : yabai -m window --resize bottom:0:30
+cmd + alt - k : yabai -m window --resize top:0:-30
+cmd + alt - l : yabai -m window --resize right:30:0
+
+# Workspace Switching
+cmd - 1 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[0]')
+cmd - 2 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[1]')
+cmd - 3 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[2]')
+cmd - 4 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[3]')
+cmd - 5 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[4]')
+cmd - 6 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[5]')
+cmd - 7 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[6]')
+cmd - 8 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[7]')
+cmd - 9 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[8]')
+cmd - 0 : yabai -m space --focus $(yabai -m query --displays --display | jq '.spaces[9]')
+
+# Next/Previous Workspace
+cmd - tab : yabai -m space --focus next || yabai -m space --focus first
+cmd + shift - tab : yabai -m space --focus prev || yabai -m space --focus last
+
+# Move Window to Workspace
+cmd + shift - 1 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[0]')
+cmd + shift - 2 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[1]')
+cmd + shift - 3 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[2]')
+cmd + shift - 4 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[3]')
+cmd + shift - 5 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[4]')
+cmd + shift - 6 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[5]')
+cmd + shift - 7 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[6]')
+cmd + shift - 8 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[7]')
+cmd + shift - 9 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[8]')
+cmd + shift - 0 : yabai -m window --space $(yabai -m query --displays --display | jq '.spaces[9]')
+
+# Monitor Focus
+cmd - 0x2B : yabai -m display --focus west    # , (comma)
+cmd - 0x2F : yabai -m display --focus east    # . (period)
+
+# Move Window to Monitor
+cmd + shift - 0x2B : yabai -m window --display west; yabai -m display --focus west
+cmd + shift - 0x2F : yabai -m window --display east; yabai -m display --focus east
+
+# Layout Management
+cmd - e : yabai -m window --toggle split
+cmd - b : yabai -m space --balance
+cmd - r : yabai -m space --rotate 270
+
+# Yabai Service Control
+cmd + shift + ctrl - q : yabai --stop-service
+cmd + shift + ctrl - s : yabai --start-service
+cmd + shift + ctrl - r : yabai --restart-service
+
+# Screenshots (using 's' for screenshot)
+# Full screen screenshot
+cmd + shift - s : screencapture -x ~/Desktop/screenshot-$(date +%Y%m%d-%H%M%S).png
+
+# Interactive screenshot
+cmd + alt - s : screencapture -i -x ~/Desktop/screenshot-$(date +%Y%m%d-%H%M%S).png
+
+# To clipboard
+cmd + ctrl - s : screencapture -i -c -x
