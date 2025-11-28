@@ -76,6 +76,9 @@ Dotfiles are organized into modular packages that can be installed independently
 ### macOS Applications
 
 - **macos-tools** - Zed editor and Ghostty terminal configurations
+- **yabai** - Tiling window manager for macOS
+- **skhd** - Hotkey daemon for macOS
+- **sketchybar** - Custom status bar for macOS
 
 ### Creative Tools
 
@@ -100,6 +103,12 @@ stow zsh git nvim zellij hyprland wayland-tools gtk lazygit yazi btop
 macOS with development tools:
 ```bash
 stow zsh git nvim zellij macos-tools lazygit yazi btop ideavim
+```
+
+### macOS with Window Manager
+macOS with tiling window manager and custom bar:
+```bash
+stow zsh git nvim zellij macos-tools yabai skhd sketchybar lazygit yazi btop
 ```
 
 ### Selective Installation
@@ -177,6 +186,15 @@ brew install lazygit yazi btop
 brew install --cask zed ghostty
 ```
 
+**Window Manager Tools:**
+```bash
+brew tap koekeishiya/formulae
+brew tap FelixKratz/formulae
+brew install koekeishiya/formulae/yabai
+brew install koekeishiya/formulae/skhd
+brew install FelixKratz/formulae/sketchybar
+```
+
 ## Post-Installation
 
 After installing the zsh package:
@@ -192,6 +210,95 @@ After installing the zsh package:
    ```
 
 3. Zinit will automatically install plugins on first launch
+
+### macOS Window Manager Setup (yabai)
+
+If you installed yabai, additional configuration is required for full functionality:
+
+#### 1. Disable System Integrity Protection (SIP)
+
+Yabai's scripting addition requires partially disabling SIP:
+
+1. Reboot into Recovery Mode:
+   - **Intel Mac:** Restart and hold `Cmd + R` during boot
+   - **Apple Silicon:** Shut down, then press and hold the power button until "Loading startup options" appears, then select Options
+
+2. Open Terminal from the Utilities menu
+
+3. Run the following command:
+   ```bash
+   csrutil enable --without fs --without debug --without nvram
+   ```
+
+4. Reboot normally
+
+5. Verify SIP status:
+   ```bash
+   csrutil status
+   ```
+   You should see: `System Integrity Protection status: unknown (Custom Configuration)`
+
+#### 2. Load Scripting Addition
+
+After disabling SIP and rebooting:
+
+```bash
+sudo yabai --load-sa
+```
+
+You'll need to run this command each time yabai is updated.
+
+#### 3. Grant Accessibility Permissions
+
+1. Open **System Preferences** → **Security & Privacy** → **Privacy** → **Accessibility**
+2. Add and enable:
+   - `yabai`
+   - `skhd`
+   - Your terminal application (Terminal.app, Ghostty, etc.)
+
+#### 4. Start Services
+
+```bash
+# Start yabai
+yabai --start-service
+
+# Start skhd
+skhd --start-service
+
+# Start sketchybar
+brew services start sketchybar
+```
+
+#### 5. Verify Installation
+
+```bash
+# Check yabai is running
+yabai -m query --windows
+
+# Check skhd is running
+skhd --check
+
+# Check sketchybar is running
+brew services list | grep sketchybar
+```
+
+#### Updating yabai
+
+When updating yabai via Homebrew, you must reload the scripting addition:
+
+```bash
+brew upgrade yabai
+sudo yabai --load-sa
+yabai --restart-service
+```
+
+#### Troubleshooting
+
+- **yabai not tiling windows:** Ensure SIP is partially disabled and scripting addition is loaded
+- **skhd hotkeys not working:** Check Accessibility permissions
+- **sketchybar not appearing:** Restart the service with `brew services restart sketchybar`
+
+For more details, see the [official yabai wiki](https://github.com/koekeishiya/yabai/wiki).
 
 ## Customization
 
