@@ -48,22 +48,22 @@ default=(
 sketchybar --default "${default[@]}"
 
 # LEFT: WORKSPACE STUFF
-# Spaces for display 1 (spaces 1-6)
-for i in {1..6}; do
-  sketchybar --add space space.$i left \
-             --set space.$i \
+# Spaces for display 1 (1-10)
+for i in {1..10}; do
+  sketchybar --add space space.d1_$i left \
+             --set space.d1_$i \
                    associated_display=1 \
                    associated_space=$i \
                    icon=$i \
                    script="$PLUGIN_DIR/spaces.sh"
 done
 
-# Spaces for display 2 (spaces 7-12)
-for i in {7..12}; do
-  sketchybar --add space space.$i left \
-             --set space.$i \
+# Spaces for display 2 (1-10)
+for i in {1..10}; do
+  sketchybar --add space space.d2_$i left \
+             --set space.d2_$i \
                    associated_display=2 \
-                   associated_space=$((i-6)) \
+                   associated_space=$i \
                    icon=$i \
                    script="$PLUGIN_DIR/spaces.sh"
 done
