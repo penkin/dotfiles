@@ -4,7 +4,7 @@ sudo yabai --load-sa
 yabai -m config layout bsp
 
 # Padding for all displays
-yabai -m config top_padding    42
+yabai -m config top_padding    8
 yabai -m config bottom_padding 8
 yabai -m config left_padding   8
 yabai -m config right_padding  8
