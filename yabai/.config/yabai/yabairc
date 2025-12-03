@@ -42,3 +42,5 @@ yabai -m signal --add event=window_created action='
   yabai -m space --focus $SPACE;
   yabai -m window --focus $YABAI_WINDOW_ID
 '
+
+yabai -m config external_bar all:34:0
