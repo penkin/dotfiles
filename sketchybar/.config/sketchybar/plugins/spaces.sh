@@ -4,18 +4,17 @@
 CURRENT_SPACE=$(yabai -m query --spaces --space | jq -r '.index')
 CURRENT_DISPLAY=$(yabai -m query --spaces --space | jq -r '.display')
 
-# Query all spaces to get their display associations
-SPACES=$(yabai -m query --spaces)
+# Loop through both displays and their spaces
+for display in {1..2}; do
+  for space_num in {1..10}; do
+    # Calculate the actual space index for this display
+    SPACE_INDEX=$(yabai -m query --spaces | jq -r ".[] | select(.display == $display and .index == $space_num) | .index")
 
-# Loop through all 12 spaces (6 per display)
-for sid in {1..12}; do
-  # Get the display for this space
-  SPACE_DISPLAY=$(echo "$SPACES" | jq -r ".[] | select(.index == $sid) | .display")
-  
-  # Highlight if this is the current space
-  if [ "$sid" -eq "$CURRENT_SPACE" ]; then
-    sketchybar --set space.$sid icon.highlight=on
-  else
-    sketchybar --set space.$sid icon.highlight=off
-  fi
+    # Highlight if this is the current space on the current display
+    if [ "$space_num" -eq "$CURRENT_SPACE" ] && [ "$display" -eq "$CURRENT_DISPLAY" ]; then
+      sketchybar --set space.d${display}_${space_num} icon.highlight=on
+    else
+      sketchybar --set space.d${display}_${space_num} icon.highlight=off
+    fi
+  done
 done
