@@ -186,7 +186,7 @@ hcloud_db_dev()       { _hcloud_start_proxy "dev"       "harambee-dev:europe-wes
 hcloud_db_dev_adhoc() { _hcloud_start_proxy "dev-adhoc" "harambee-dev:europe-west1:harambee-adhoc-dev"   "3310" "false"; }
 hcloud_db_qa()        { _hcloud_start_proxy "qa"        "harambee-dev:europe-west1:harambee-core-qa"     "3320" "true"; }
 hcloud_db_uat()       { _hcloud_start_proxy "uat"       "corestaging:europe-west1:harambee-core-v8-4"    "3330" "true"; }
-hcloud_db_prod()      { _hcloud_start_proxy "prod"      "coreproduction:europe-west1:harambee-core-v8-3-replica" "" "false"; }
+hcloud_db_prod()      { _hcloud_start_proxy "prod"      "coreproduction:europe-west1:harambee-core-v8-3-replica" "3310" "true"; }
 hcloud_db_aux()       { _hcloud_start_proxy "aux"       "harambee-dev:europe-west1:harambee-aux-dev"     "3322" "true"; }
 
 alias hcloud-db-dev='hcloud_db_dev'
