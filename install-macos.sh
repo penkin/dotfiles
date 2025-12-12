@@ -154,51 +154,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 echo ""
 
-# Ask about window manager and bar
-echo "========================================"
-read -p "Install window manager tools? (yabai, skhd, sketchybar) [y/N]: " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    WM_PACKAGES=(
-        koekeishiya/formulae/yabai
-        koekeishiya/formulae/skhd
-        FelixKratz/formulae/sketchybar
-    )
-
-    # Add taps if not already added
-    brew tap koekeishiya/formulae &> /dev/null || true
-    brew tap FelixKratz/formulae &> /dev/null || true
-
-    for pkg in "${WM_PACKAGES[@]}"; do
-        pkg_name=$(basename "$pkg")
-        if ! is_installed "$pkg_name"; then
-            echo -e "${YELLOW}Installing:${NC} $pkg_name"
-            brew install "$pkg"
-        else
-            echo -e "${GREEN}✓${NC} $pkg_name is already installed"
-        fi
-    done
-
-    WM_STOW=(yabai skhd sketchybar)
-    stow_packages "${WM_STOW[@]}"
-
-    echo ""
-    echo -e "${YELLOW}IMPORTANT: yabai requires additional setup steps:${NC}"
-    echo "1. Disable System Integrity Protection (SIP) for scripting additions:"
-    echo "   - Reboot into Recovery Mode (hold Cmd+R during boot)"
-    echo "   - Open Terminal and run: csrutil enable --without fs --without debug --without nvram"
-    echo "   - Reboot normally"
-    echo "2. Load the scripting addition: sudo yabai --load-sa"
-    echo "3. Grant Accessibility permissions in System Preferences"
-    echo "4. Start services:"
-    echo "   - yabai --start-service"
-    echo "   - skhd --start-service"
-    echo "   - brew services start sketchybar"
-    echo ""
-    echo "See the README for detailed instructions."
-fi
-echo ""
-
 # Ask about PDF viewer and creative tools
 echo "========================================"
 read -p "Install PDF viewer (zathura) and Godot editor? [y/N]: " -n 1 -r
