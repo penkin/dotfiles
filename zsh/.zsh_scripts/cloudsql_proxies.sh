@@ -101,6 +101,29 @@ _hcloud_kill_proxy_on_port() {
 
 
 
+_hcloud_proxy_port() {
+  case "$1" in
+    dev|dev-adhoc|prod) echo 3310 ;;
+    qa)                 echo 3320 ;;
+    uat)                echo 3330 ;;
+    aux)                echo 3322 ;;
+    *)                  echo "" ;;
+  esac
+}
+
+_hcloud_name_from_instance() {
+  local inst="$1"
+  case "$inst" in
+    *harambee-core-dev)          echo "dev" ;;
+    *harambee-adhoc-dev)         echo "dev-adhoc" ;;
+    *harambee-core-qa)           echo "qa" ;;
+    *harambee-core-v8-4)         echo "uat" ;;
+    *harambee-core-v8-3-replica) echo "prod" ;;
+    *harambee-aux-dev)           echo "aux" ;;
+    *)                           echo "unknown" ;;
+  esac
+}
+
 _hcloud_start_proxy() {
   local name="$1"
   local instance="$2"
@@ -159,23 +182,146 @@ hcloud_db_status() {
   fi
 
   echo "[INFO] Active cloud SQL proxy processes:"
-  printf "%-8s %-8s %s\n" "PID" "PORT" "INSTANCE"
-  printf "%-8s %-8s %s\n" "--------" "--------" "----------------------------------------"
+  printf "%-12s %-8s %-8s %-45s %s\n" "NAME" "PID" "PORT" "INSTANCE" "LOG"
+  printf "%-12s %-8s %-8s %-45s %s\n" "------------" "--------" "--------" "---------------------------------------------" "---"
 
   echo "$lines" | while read -r pid cmd; do
-    # Instance is the 2nd token (after 'cloud-sql[-proxy]')
     instance=$(echo "$cmd" | awk '{print $2}')
 
-    # Port from --port=NNNN (if present)
     port=$(echo "$cmd" | sed -E 's/.*--port="?([0-9]+)"?.*/\1/')
     [[ -z "$port" || "$port" == "$cmd" ]] && port="(n/a)"
 
-    printf "%-8s %-8s %s\n" "$pid" "$port" "$instance"
+    local name
+    name=$(_hcloud_name_from_instance "$instance")
+    local log_file="/tmp/cloud-sql-proxy-${name}.log"
+    local log_indicator="--"
+    [[ -f "$log_file" ]] && log_indicator="$log_file"
+
+    printf "%-12s %-8s %-8s %-45s %s\n" "$name" "$pid" "$port" "$instance" "$log_indicator"
   done
 }
 
 # Nice short alias
 alias hcloud-db-status='hcloud_db_status'
+
+hcloud_db_stop() {
+  local name="$1"
+
+  if [[ -n "$name" ]]; then
+    local port
+    port=$(_hcloud_proxy_port "$name")
+    if [[ -z "$port" ]]; then
+      echo "[ERROR] Unknown proxy name: $name"
+      return 1
+    fi
+    _hcloud_kill_proxy_on_port "$port"
+    return
+  fi
+
+  # No argument — interactive fzf selection
+  local lines
+  lines=$(ps ax -o pid=,command= | grep -E 'cloud-sql' | grep -v grep || true)
+
+  if [[ -z "$lines" ]]; then
+    echo "[INFO] No cloud SQL proxy processes running."
+    return 0
+  fi
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "[ERROR] fzf is not installed. Pass a proxy name as argument or install fzf."
+    return 1
+  fi
+
+  local entries=()
+  while read -r pid cmd; do
+    local inst port_val pname
+    inst=$(echo "$cmd" | awk '{print $2}')
+    port_val=$(echo "$cmd" | sed -E 's/.*--port="?([0-9]+)"?.*/\1/')
+    [[ -z "$port_val" || "$port_val" == "$cmd" ]] && port_val="(n/a)"
+    pname=$(_hcloud_name_from_instance "$inst")
+    entries+=("$(printf "%-12s  PID %-8s  PORT %-6s  %s" "$pname" "$pid" "$port_val" "$inst")")
+  done <<< "$lines"
+
+  local choice
+  choice=$(printf '%s\n' "${entries[@]}" | fzf --prompt="Stop which proxy? > " --height=80% --reverse) || return 1
+
+  local selected_pid
+  selected_pid=$(echo "$choice" | sed -E 's/.*PID ([0-9]+).*/\1/')
+
+  if [[ -n "$selected_pid" ]]; then
+    echo "[INFO] Killing proxy PID $selected_pid..."
+    kill "$selected_pid" 2>/dev/null || sudo kill "$selected_pid" 2>/dev/null || true
+    sleep 0.3
+    if kill -0 "$selected_pid" 2>/dev/null; then
+      echo "[WARN] Process still running, sending SIGKILL..."
+      kill -9 "$selected_pid" 2>/dev/null || sudo kill -9 "$selected_pid" 2>/dev/null || true
+    fi
+    echo "[INFO] Done."
+  fi
+}
+
+alias hcloud-db-stop='hcloud_db_stop'
+
+hcloud_db_logs() {
+  local name="$1"
+
+  if [[ -n "$name" ]]; then
+    local log_file="/tmp/cloud-sql-proxy-${name}.log"
+    if [[ ! -f "$log_file" ]]; then
+      echo "[ERROR] Log file not found: $log_file"
+      return 1
+    fi
+    echo "[INFO] Tailing $log_file (Ctrl+C to stop)"
+    tail -f "$log_file"
+    return
+  fi
+
+  # No argument — interactive fzf selection
+  local log_files=(/tmp/cloud-sql-proxy-*.log(N))
+
+  if [[ ${#log_files[@]} -eq 0 ]]; then
+    echo "[INFO] No cloud SQL proxy log files found."
+    return 0
+  fi
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "[ERROR] fzf is not installed. Pass a proxy name as argument or install fzf."
+    return 1
+  fi
+
+  local running_pids
+  running_pids=$(ps ax -o command= | grep -E 'cloud-sql' | grep -v grep || true)
+
+  local entries=()
+  for lf in "${log_files[@]}"; do
+    local base
+    base=$(basename "$lf" .log)
+    local pname="${base#cloud-sql-proxy-}"
+    local marker="[STOPPED]"
+
+    if echo "$running_pids" | grep -q "$pname"; then
+      marker="[RUNNING]"
+    fi
+
+    entries+=("$(printf "%-10s  %-12s  %s" "$marker" "$pname" "$lf")")
+  done
+
+  local choice
+  choice=$(printf '%s\n' "${entries[@]}" | fzf --prompt="Tail which log? > " --height=80% --reverse) || return 1
+
+  local selected_file
+  selected_file=$(echo "$choice" | awk '{print $NF}')
+
+  if [[ -f "$selected_file" ]]; then
+    echo "[INFO] Tailing $selected_file (Ctrl+C to stop)"
+    tail -f "$selected_file"
+  else
+    echo "[ERROR] File not found: $selected_file"
+    return 1
+  fi
+}
+
+alias hcloud-db-logs='hcloud_db_logs'
 
 
 ###############################################
@@ -198,9 +344,45 @@ alias hcloud-db-aux='hcloud_db_aux'
 
 
 ###############################################
-# FZF Menu
+# Help
 ###############################################
-# hcloud-db -> fuzzy menu of all instances
+
+hcloud_db_help() {
+  cat <<'EOF'
+Cloud SQL Proxy Helper Commands
+================================
+
+Start Proxy:
+  hcloud-db-dev          Dev core (auto-IAM, port 3310)
+  hcloud-db-dev-adhoc    Dev adhoc (port 3310)
+  hcloud-db-qa           QA core (auto-IAM, port 3320)
+  hcloud-db-uat          UAT core (auto-IAM, port 3330)
+  hcloud-db-prod         PROD replica (auto-IAM, port 3310)
+  hcloud-db-aux          Aux dev (auto-IAM, port 3322)
+
+  Note: dev, dev-adhoc, and prod share port 3310 — only one at a time.
+
+Manage:
+  hcloud-db-stop [name]  Stop a proxy (by name or interactive fzf)
+  hcloud-db-logs [name]  Tail proxy logs (by name or interactive fzf)
+  hcloud-db-status       Show running proxies (name, pid, port, instance, log)
+
+Global:
+  cloud-kill-all         Kill ALL running cloud SQL proxy processes
+  hcloud-db-help         Show this help
+  hcloud-db              Unified fzf menu (start + manage)
+
+Environment Variables:
+  HCLOUD_PROXY_MODE      "bg" (default) or "fg" for foreground mode
+  CLOUD_DIR              Path to cloud-sql-proxy binary directory
+EOF
+}
+
+alias hcloud-db-help='hcloud_db_help'
+
+
+###############################################
+# FZF Menu — Unified Entry Point
 ###############################################
 
 hcloud-db() {
@@ -212,25 +394,38 @@ hcloud-db() {
   local choice
 
   choice=$(
-    cat <<'EOF' | fzf --prompt="Select Cloud SQL instance > " --height=80% --reverse
-dev          Dev core (--auto-iam-authn, port 3310)
-dev-adhoc    Dev adhoc (port 3310)
-qa           QA core (--auto-iam-authn, port 3320)
-uat          UAT core (--auto-iam-authn, port 3330)
-prod         PROD replica (no port specified)
-aux          Aux dev (--auto-iam-authn, port 3322)
+    cat <<'EOF' | fzf --prompt="Cloud SQL Proxy > " --height=80% --reverse
+--- Start Proxy ---
+start-dev          Dev core (auto-IAM, port 3310)
+start-dev-adhoc    Dev adhoc (port 3310)
+start-qa           QA core (auto-IAM, port 3320)
+start-uat          UAT core (auto-IAM, port 3330)
+start-prod         PROD replica (auto-IAM, port 3310)
+start-aux          Aux dev (auto-IAM, port 3322)
+--- Manage ---
+stop               Stop a running proxy (interactive)
+logs               Tail proxy logs (interactive)
+status             Show running proxies
+kill-all           Kill ALL proxy processes
+help               Show all commands
 EOF
   ) || return 1
 
   choice=${choice%% *}   # take first field (token)
 
   case "$choice" in
-    dev)       hcloud_db_dev ;;
-    dev-adhoc) hcloud_db_dev_adhoc ;;
-    qa)        hcloud_db_qa ;;
-    uat)       hcloud_db_uat ;;
-    prod)      hcloud_db_prod ;;
-    aux)       hcloud_db_aux ;;
-    *)         echo "[WARN] Unknown choice: $choice" ;;
+    start-dev)       hcloud_db_dev ;;
+    start-dev-adhoc) hcloud_db_dev_adhoc ;;
+    start-qa)        hcloud_db_qa ;;
+    start-uat)       hcloud_db_uat ;;
+    start-prod)      hcloud_db_prod ;;
+    start-aux)       hcloud_db_aux ;;
+    stop)            hcloud_db_stop ;;
+    logs)            hcloud_db_logs ;;
+    status)          hcloud_db_status ;;
+    kill-all)        hcloud_kill_all ;;
+    help)            hcloud_db_help ;;
+    ---*)            ;; # section header selected, ignore
+    *)               echo "[WARN] Unknown choice: $choice" ;;
   esac
 }

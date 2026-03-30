@@ -1,4 +1,5 @@
-font-family = "JetBrainsMono Nerd Font"
+font-family = "JetBrainsMono Nerd Font Mono"
 font-size = 16
 theme = catppuccin-mocha.conf
 keybind = shift+enter=text:\x1b\r
+confirm-close-surface = false

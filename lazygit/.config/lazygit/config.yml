@@ -1,4 +1,6 @@
 gui:
+  sidePanelWidth: 0.3
+  expandFocusedSidePanel: true
   theme:
     activeBorderColor:
       - '#fab387'
@@ -22,3 +24,9 @@ gui:
 
   authorColors:
     '*': '#b4befe'
+
+git:
+  paging:
+    colorArg: always
+    pager: delta --color-only --dark
+    useConfig: false

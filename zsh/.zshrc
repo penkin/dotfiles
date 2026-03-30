@@ -1,3 +1,10 @@
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+fpath=("/Users/penkin/.zsh/completions" $fpath)
+autoload -Uz compinit
+compinit
+# OPENSPEC:END
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -78,9 +85,6 @@ alias vim="nvim"
 alias c="clear"
 alias y="yazi"
 
-# Shell integrations
-eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
 
 # Directory for client-specific scripts
 SOURCE_DIRS=("$HOME/.zsh_scripts" "$HOME/.zsh_secrets")
@@ -114,19 +118,22 @@ export PATH="$HOME/scripts:$PATH"
 # Add neovim mason bin to the PATH.
 export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
 
-# Set up dotnet if installed via asdf
-if command -v asdf &> /dev/null; then
-    DOTNET_ROOT_PATH="$(asdf where dotnet 2>/dev/null)"
+export PATH="$HOME/.local/bin:$PATH"
 
-    if [ -n "$DOTNET_ROOT_PATH" ]; then
-        export DOTNET_ROOT="$DOTNET_ROOT_PATH"
-        export PATH="$PATH:$HOME/.dotnet/tools"
-    fi
-fi
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/penkin/Sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/Sandbox/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/penkin/Sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/Sandbox/google-cloud-sdk/completion.zsh.inc'; fi
-export PATH="$HOME/.local/bin:$PATH"
+if [ -f '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc'; fi
+export GPG_TTY=$(tty)
+
+# Setup Java
+. ~/.asdf/plugins/java/set-java-home.bash
+
+# Shell integrations (must be at the end of .zshrc)
+eval "$(fzf --zsh)"
+eval "$(zoxide init --cmd cd zsh)"
