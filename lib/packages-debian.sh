@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Debian/Ubuntu package map. Sourced by install.sh.
+
+is_installed() {
+  dpkg -s "$1" &>/dev/null
+}
+
+PKG_INSTALL="sudo apt-get install -y"
+
+# Packages reliably available in Ubuntu 22.04 LTS+ default repos
+CORE_PKGS=(
+  git zsh stow fzf neovim tmux ripgrep mosh zoxide
+)
+
+# Optional core (eza is in 24.04+; install conditionally)
+CORE_OPTIONAL_PKGS=(
+  eza btop
+)
+
+# Server profile additions — these need post-apt installs
+# (lazygit, yazi via cargo / release tarball; documented in post_install_os)
+SERVER_PKGS=()
+
+# No desktop on Debian server target
+DESKTOP_PKGS=()
+
+STOW_CORE=(zsh git nvim tmux ssh)
+STOW_SERVER=(lazygit yazi btop)
+STOW_DESKTOP=()
+
+bootstrap_pkgmgr() {
+  info "Updating apt package lists..."
+  sudo apt-get update
+}
+
+post_install_os() {
+  local pkg
+
+  # Try optional core packages but don't fail if unavailable
+  for pkg in "${CORE_OPTIONAL_PKGS[@]}"; do
+    if is_installed "$pkg"; then
+      info "$pkg already installed"
+    elif apt-cache show "$pkg" &>/dev/null; then
+      info "Installing optional: $pkg"
+      sudo apt-get install -y "$pkg" || warn "Could not install $pkg"
+    else
+      warn "$pkg not available in apt; skipping (install manually if wanted)"
+    fi
+  done
+
+  # lazygit, yazi: not in apt, install via release tarball
+  install_lazygit_from_release
+  install_yazi_from_cargo_or_skip
+}
+
+install_lazygit_from_release() {
+  if command -v lazygit &>/dev/null; then
+    info "lazygit already installed"
+    return
+  fi
+  info "Installing lazygit from GitHub release..."
+  local arch tarball tmpdir
+  case "$(uname -m)" in
+    x86_64)  arch="Linux_x86_64" ;;
+    aarch64) arch="Linux_arm64"  ;;
+    *) warn "Unknown arch $(uname -m); skipping lazygit"; return ;;
+  esac
+  tmpdir=$(mktemp -d)
+  tarball="$tmpdir/lazygit.tar.gz"
+  local url
+  url=$(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
+    | grep "browser_download_url.*${arch}\.tar\.gz" | head -1 | cut -d '"' -f 4)
+  if [[ -z "$url" ]]; then
+    warn "Could not find lazygit release URL; skipping"
+    return
+  fi
+  curl -fsSL "$url" -o "$tarball"
+  tar -xzf "$tarball" -C "$tmpdir"
+  sudo install -m 0755 "$tmpdir/lazygit" /usr/local/bin/lazygit
+  rm -rf "$tmpdir"
+  info "Installed lazygit"
+}
+
+install_yazi_from_cargo_or_skip() {
+  if command -v yazi &>/dev/null; then
+    info "yazi already installed"
+    return
+  fi
+  if command -v cargo &>/dev/null; then
+    info "Installing yazi via cargo..."
+    cargo install --locked yazi-fm yazi-cli
+  else
+    warn "cargo not present; skipping yazi (install rust + 'cargo install yazi-fm yazi-cli' to add)"
+  fi
+}
