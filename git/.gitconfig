@@ -16,16 +16,14 @@
 [commit]
 	gpgsign = true
 
-[gpg]
-	program = /opt/homebrew/bin/gpg
-
 [delta]
     navigate = true          # n/N to jump between diff sections
-    side-by-side = true      # two-column view
+	side-by-side = true
     line-numbers = true
     syntax-theme = Catppuccin Mocha   # or Dracula, Nord, etc.
     file-style = bold yellow
     hunk-header-style = file line-number syntax
+	max-line-length = 0
 
 [merge]
     conflictstyle = zdiff3   # cleaner merge conflicts
