@@ -22,3 +22,6 @@ macos-tools/.config/zed/prompts/
 *.swo
 .shada
 .nvim.lua
+
+# Machine-local zsh fragment (gcloud paths, work aliases, etc.)
+zsh/.zsh-local.sh
