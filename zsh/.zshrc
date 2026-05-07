@@ -1,31 +1,22 @@
-# OPENSPEC:START
-# OpenSpec shell completions configuration
-fpath=("/Users/penkin/.zsh/completions" $fpath)
-autoload -Uz compinit
-compinit
-# OPENSPEC:END
+# Theme (zsh-syntax-highlighting Catppuccin)
+source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# Powerlevel10k instant prompt — must stay near the top.
+# Initialization that may require console input (passwords, prompts) goes
+# above this block; everything else goes below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Theme
-source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
-
 # Zinit setup
 ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
-
 if [ ! -d "$ZINIT_HOME" ]; then
    mkdir -p "$(dirname $ZINIT_HOME)"
    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
-
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Add Powerlevel10k
+# Powerlevel10k
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 # Zsh plugins
@@ -37,16 +28,10 @@ zinit light Aloxaf/fzf-tab
 
 zinit wait lucid for MichaelAquilina/zsh-autoswitch-virtualenv
 
-# Zsh snippets
+# Generic OMZ snippets (distro-specific ones live in OS fragments)
 zinit snippet OMZP::git
 zinit snippet OMZP::sudo
-zinit snippet OMZP::archlinux
 zinit snippet OMZP::command-not-found
-
-# Load completions
-autoload -U compinit && compinit
-
-zinit cdreplay -q
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -75,6 +60,7 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=auto $realpath'
 
 # Exports
 export EDITOR='nvim'
+export GPG_TTY=$(tty)
 
 # Aliases
 alias ls='eza --icons=auto'
@@ -85,54 +71,41 @@ alias vim="nvim"
 alias c="clear"
 alias y="yazi"
 
-
-# Directory for client-specific scripts
+# Source any user scripts and secrets
 SOURCE_DIRS=("$HOME/.zsh_scripts" "$HOME/.zsh_secrets")
-
 for DIR in "${SOURCE_DIRS[@]}"; do
-  # Check if the directory exists
   if [ -d "$DIR" ]; then
-    # Loop through all the shell scripts in the directory
     for FILE in "$DIR"/*.sh; do
-      # Check if the script file exists
-      if [ -f "$FILE" ]; then
-        # Source the script
-        source "$FILE"
-      fi
+      [ -f "$FILE" ] && source "$FILE"
     done
   fi
 done
 
-# Source OS-specific files
+# OS-specific fragment (Phase D will refine this to distro-aware detection;
+# for now keep the existing uname-based lookup)
 os_name=$(uname | tr '[:upper:]' '[:lower:]')
-os_source="$HOME/.zsh-$os_name.sh"
+[[ -r "$HOME/.zsh-${os_name}.sh" ]] && source "$HOME/.zsh-${os_name}.sh"
 
-if [ -f "$os_source" ]; then
-  source "$os_source"
-fi
+# Machine-local fragment (gitignored, holds gcloud paths, work aliases, etc.)
+[[ -r "$HOME/.zsh-local.sh" ]] && source "$HOME/.zsh-local.sh"
 
-# Add scritps in the scripts folder to the path.
-export PATH="$HOME/scripts:$PATH"
+# PATH — consolidated. Add scripts in the scripts folder, neovim/Mason bins,
+# and ~/.local/bin to PATH.
+path=(
+  "$HOME/scripts"
+  "$HOME/.local/bin"
+  $path
+  "$HOME/.local/share/nvim/mason/bin"
+)
+export PATH
 
+# OPENSPEC:START
+fpath=("$HOME/.zsh/completions" $fpath)
+# OPENSPEC:END
 
-# Add neovim mason bin to the PATH.
-export PATH="$PATH:$HOME/.local/share/nvim/mason/bin"
-
-export PATH="$HOME/.local/bin:$PATH"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/penkin/sandbox/google-cloud-sdk/completion.zsh.inc'; fi
-export GPG_TTY=$(tty)
-
-# Setup Java
-. ~/.asdf/plugins/java/set-java-home.bash
+# Load completions (single compinit, after zinit plugins and fpath additions)
+autoload -U compinit && compinit
+zinit cdreplay -q
 
 # Shell integrations (must be at the end of .zshrc)
 eval "$(fzf --zsh)"
