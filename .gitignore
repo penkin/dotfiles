@@ -29,3 +29,7 @@ zsh/.zsh-local.sh
 # TPM clones plugins into here; only the .gitkeep should be tracked
 tmux/.config/tmux/plugins/*
 !tmux/.config/tmux/plugins/.gitkeep
+
+# Host-specific SSH config blocks (work hosts, secrets in hostnames, etc.)
+ssh/.ssh/config.d/*
+!ssh/.ssh/config.d/.gitkeep
