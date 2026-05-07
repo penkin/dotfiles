@@ -81,10 +81,24 @@ for DIR in "${SOURCE_DIRS[@]}"; do
   fi
 done
 
-# OS-specific fragment (Phase D will refine this to distro-aware detection;
-# for now keep the existing uname-based lookup)
-os_name=$(uname | tr '[:upper:]' '[:lower:]')
-[[ -r "$HOME/.zsh-${os_name}.sh" ]] && source "$HOME/.zsh-${os_name}.sh"
+# OS / distro detection — selects the right shell fragment.
+case "$OSTYPE" in
+  darwin*)
+    DOTFILES_OS="darwin"
+    ;;
+  linux*)
+    DOTFILES_OS="linux"
+    if [[ -r /etc/os-release ]]; then
+      . /etc/os-release
+      case "${ID_LIKE:-$ID}" in
+        *arch*)              DOTFILES_OS="linux-arch" ;;
+        *debian*|*ubuntu*)   DOTFILES_OS="linux-debian" ;;
+      esac
+    fi
+    ;;
+esac
+
+[[ -r "$HOME/.zsh-${DOTFILES_OS}.sh" ]] && source "$HOME/.zsh-${DOTFILES_OS}.sh"
 
 # Machine-local fragment (gitignored, holds gcloud paths, work aliases, etc.)
 [[ -r "$HOME/.zsh-local.sh" ]] && source "$HOME/.zsh-local.sh"
