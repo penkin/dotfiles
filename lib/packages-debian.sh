@@ -30,7 +30,10 @@ STOW_DESKTOP=()
 
 bootstrap_pkgmgr() {
   info "Updating apt package lists..."
-  sudo apt-get update
+  # apt-get update returns non-zero if any single repo (often a stale PPA)
+  # fails to refresh, even when the rest succeed. Warn but don't abort —
+  # the cached index from working repos is enough to install our packages.
+  sudo apt-get update || warn "apt-get update had non-zero exit (likely a broken PPA); continuing"
 }
 
 post_install_os() {
