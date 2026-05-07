@@ -3,3 +3,4 @@
 ^/README.*
 ^/install-.*\.sh
 .*\.md$
+\.DS_Store
