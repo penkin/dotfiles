@@ -1,243 +1,107 @@
 # dotfiles
 
-Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/) for flexible, modular configuration management across multiple machines.
+Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/) for flexible, modular configuration management across **macOS, Arch Linux, and Ubuntu/Debian** (server or desktop).
 
 ## Quick Start
 
-### Automated Setup
-
-The easiest way to get started is using the provided setup scripts:
-
-**Arch Linux:**
 ```bash
+git clone <repo-url> ~/dotfiles
 cd ~/dotfiles
-./install-arch.sh
+./install.sh
 ```
 
-**macOS:**
+The script detects your OS and installs an appropriate default profile:
+
+- **Ubuntu/Debian** → `server` profile (TUI tools, no GUI)
+- **Arch / macOS** → `desktop` profile (everything)
+
+Override:
+
 ```bash
+./install.sh --profile=server      # force server (no GUI)
+./install.sh --profile=desktop     # force desktop
+./install.sh --profile=server --yes  # non-interactive
+```
+
+## Profiles
+
+| | server | desktop |
+|---|---|---|
+| zsh, git, nvim, tmux, ssh | ✓ | ✓ |
+| lazygit, yazi, btop | ✓ | ✓ |
+| ripgrep, fzf, eza, zoxide, mosh | ✓ | ✓ |
+| ideavim | — | ✓ |
+| Hyprland + wayland tools (Arch) | — | ✓ |
+| GTK theme (Arch) | — | ✓ |
+| Ghostty + Zed (macOS) | — | ✓ |
+
+## Packages
+
+Stow packages are organized by tool. Install individually with `stow <pkg>`:
+
+- **zsh** — Zinit, Powerlevel10k, OS-specific fragments, plugins
+- **git** — Git config with delta diffs
+- **nvim** — Neovim config
+- **tmux** — TPM, Catppuccin Mocha, prefix `C-a`
+- **ssh** — SSH defaults with ControlMaster multiplexing
+- **lazygit, yazi, btop, ideavim** — TUI tool configs
+- **hyprland, wayland-tools, gtk** — Arch desktop
+- **macos-tools** — Ghostty, Zed (macOS)
+- **zathura, godot** — creative tools
+
+## Machine-local config
+
+Anything specific to one machine — work-VM aliases, Cloud SDK paths, host-only API keys — goes in `~/.zsh-local.sh`. This file is gitignored.
+
+A template is provided at `zsh/.zsh-local.sh.example`:
+
+```bash
+cp zsh/.zsh-local.sh.example ~/.zsh-local.sh
+$EDITOR ~/.zsh-local.sh
+```
+
+## Ubuntu Server
+
+For a pure SSH-only server:
+
+```bash
+git clone <repo-url> ~/dotfiles
 cd ~/dotfiles
-./install-macos.sh
+./install.sh --profile=server --yes
+chsh -s "$(command -v zsh)"
 ```
 
-These scripts will:
-- Install necessary packages
-- Prompt for optional package groups
-- Automatically stow the selected configurations
+Notes:
+- `lazygit` is installed from GitHub release (not in apt).
+- `yazi` is installed via `cargo install yazi-fm yazi-cli` if Rust is present, otherwise skipped.
+- Optional packages (`eza`, `btop`) install if available on your Ubuntu version.
 
-### Manual Setup
+## Manual stow
 
-If you prefer manual control or selective installation:
-
-1. Install GNU Stow:
-   ```bash
-   # Arch Linux
-   sudo pacman -S stow
-   
-   # macOS
-   brew install stow
-   ```
-
-2. Clone this repository to your home directory:
-   ```bash
-   git clone <your-repo-url> ~/dotfiles
-   cd ~/dotfiles
-   ```
-
-3. Stow the packages you want:
-   ```bash
-   stow zsh git nvim zellij
-   ```
-
-## Package Structure
-
-Dotfiles are organized into modular packages that can be installed independently:
-
-### Core Packages
-
-- **zsh** - Shell configuration with Zinit, Powerlevel10k, and OS-specific settings
-- **git** - Git configuration
-- **nvim** - Neovim editor configuration
-- **zellij** - Terminal multiplexer configuration
-
-### Development Tools
-
-- **ideavim** - IntelliJ IDEA Vim emulation configuration
-- **lazygit** - Git TUI configuration
-- **yazi** - File manager configuration
-- **btop** - System monitor configuration
-
-### Linux Desktop (Wayland/Hyprland)
-
-- **hyprland** - Hyprland window manager with hypridle and hyprlock
-- **wayland-tools** - Waybar, Wofi, SwayNC, Rofi, Wpaperd configurations
-- **gtk** - GTK3, Qt5/Qt6, themes, and appearance settings
-
-### macOS Applications
-
-- **macos-tools** - Zed editor and Ghostty terminal configurations
-
-### Creative Tools
-
-- **godot** - Godot engine editor settings
-- **zathura** - PDF viewer configuration
-
-## Usage Examples
-
-### Minimal Server Setup
-Install just the essentials for a remote server:
 ```bash
-stow zsh git nvim zellij
+stow zsh git nvim tmux              # core
+stow -D zsh                         # uninstall
+stow -R zsh                         # restow (after editing)
 ```
-
-### Full Linux Desktop
-Complete Arch Linux desktop environment:
-```bash
-stow zsh git nvim zellij hyprland wayland-tools gtk lazygit yazi btop
-```
-
-### macOS Development Machine
-macOS with development tools:
-```bash
-stow zsh git nvim zellij macos-tools lazygit yazi btop ideavim
-```
-
-### Selective Installation
-Install only what you need:
-```bash
-# Just shell config
-stow zsh
-
-# Add editor
-stow nvim
-
-# Add terminal tools
-stow zellij lazygit yazi
-```
-
-## Managing Configurations
-
-### Adding a New Configuration
-To add a new configuration:
-```bash
-stow <package-name>
-```
-
-### Removing a Configuration
-To remove a stowed configuration:
-```bash
-stow -D <package-name>
-```
-
-### Restowing (Update)
-After making changes, restow to update symlinks:
-```bash
-stow -R <package-name>
-```
-
-### Restow Everything
-To restow all packages at once:
-```bash
-stow -R */
-```
-
-## Package Dependencies
-
-### Arch Linux
-
-**Core:**
-```bash
-sudo pacman -S git zsh stow fzf eza zoxide neovim zellij
-```
-
-**Development:**
-```bash
-sudo pacman -S lazygit yazi btop
-```
-
-**Hyprland Desktop:**
-```bash
-sudo pacman -S hyprland hypridle hyprlock waybar wofi swaync rofi wpaperd gtk3 qt5ct qt6ct nwg-look
-```
-
-### macOS
-
-**Core:**
-```bash
-brew install git zsh stow fzf eza zoxide neovim zellij
-```
-
-**Development:**
-```bash
-brew install lazygit yazi btop
-```
-
-**GUI Applications:**
-```bash
-brew install --cask zed ghostty
-```
-
-## Post-Installation
-
-After installing the zsh package:
-
-1. Restart your terminal or source the config:
-   ```bash
-   source ~/.zshrc
-   ```
-
-2. On first launch, Powerlevel10k will prompt you to configure it:
-   ```bash
-   p10k configure
-   ```
-
-3. Zinit will automatically install plugins on first launch
-
-## Customization
-
-### OS-Specific Settings
-
-The zsh package includes OS-specific configuration files:
-- `.zsh-darwin.sh` - macOS-specific settings (Homebrew, ASDF)
-- `.zsh-linux.sh` - Linux-specific settings (Paru, ASDF)
-
-These are automatically sourced based on your OS.
-
-### Personal Scripts
-
-Place personal scripts and secrets in:
-- `~/.zsh_scripts/` - General scripts
-- `~/.zsh_secrets/` - Secrets (should be gitignored)
-
-All `.sh` files in these directories will be automatically sourced.
 
 ## Troubleshooting
 
-### Stow Conflicts
-If stow reports conflicts with existing files:
+**Stow conflicts with existing config:**
 ```bash
-# Backup existing configs
-mv ~/.zshrc ~/.zshrc.backup
-
-# Then stow
+mv ~/.zshrc ~/.zshrc.bak
 stow zsh
 ```
 
-### Permission Issues
-Ensure stow is run from the dotfiles directory:
+**Reset broken symlinks:**
 ```bash
-cd ~/dotfiles
-stow <package>
+stow -R zsh
 ```
 
-### Missing Symlinks
-If symlinks aren't created, verify you're in the correct directory and the package exists:
+**TPM plugins not loading in tmux:**
 ```bash
-cd ~/dotfiles
-ls -la  # Verify packages exist
-stow -v <package>  # Verbose output for debugging
+~/.config/tmux/plugins/tpm/bin/install_plugins
 ```
 
 ## License
 
-Personal dotfiles - feel free to use as reference or inspiration.
+Personal dotfiles — feel free to use as reference or inspiration.
