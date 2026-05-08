@@ -143,8 +143,39 @@ mkdir -p "$HOME/.ssh/sockets"
 chmod 700 "$HOME/.ssh/sockets"
 
 # --- Default shell ---
+# On Azure AD-joined Linux VMs, `chsh` triggers an MFA device-code flow
+# (PAM module from the aadsshlogin package). That's annoying for an
+# unattended install — fall back to writing an `exec zsh` block into
+# ~/.bashrc, which doesn't require any privilege.
+azure_ad_vm() {
+  command -v dpkg &>/dev/null && \
+    { dpkg -s aadsshlogin &>/dev/null || dpkg -s aadsshlogin-selinux &>/dev/null; }
+}
+
+setup_zsh_via_bashrc() {
+  local marker="# DOTFILES: auto-exec zsh"
+  local target="$HOME/.bashrc"
+  if grep -qF "$marker" "$target" 2>/dev/null; then
+    info "zsh auto-exec already in $target"
+    return
+  fi
+  cat >> "$target" <<'EOF'
+
+# DOTFILES: auto-exec zsh
+# Azure AD-joined VMs require MFA for `chsh`; use profile-based exec instead.
+if [ -t 1 ] && command -v zsh >/dev/null 2>&1 && [ -z "$ZSH_VERSION" ]; then
+  exec zsh -l
+fi
+EOF
+  info "Added zsh auto-exec to $target"
+}
+
 if [[ "$SHELL" != "$(command -v zsh)" ]]; then
-  if confirm "Change default shell to zsh?"; then
+  if azure_ad_vm; then
+    info "Azure AD-joined VM detected (aadsshlogin present)"
+    info "Skipping chsh (would require MFA); using ~/.bashrc auto-exec instead"
+    setup_zsh_via_bashrc
+  elif confirm "Change default shell to zsh?"; then
     chsh -s "$(command -v zsh)"
     info "Default shell changed to zsh (restart required)"
   fi
