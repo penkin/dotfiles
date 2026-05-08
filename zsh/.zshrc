@@ -122,5 +122,17 @@ autoload -U compinit && compinit
 zinit cdreplay -q
 
 # Shell integrations (must be at the end of .zshrc)
-eval "$(fzf --zsh)"
+
+# fzf — `--zsh` is fzf 0.48+ (Feb 2024). Older fzf packages (e.g. Ubuntu 22.04/24.04
+# apt) ship the integration as files instead. Try the new way; fall back to files.
+if fzf_init=$(fzf --zsh 2>/dev/null) && [[ -n "$fzf_init" ]]; then
+  eval "$fzf_init"
+else
+  for f in /usr/share/doc/fzf/examples/key-bindings.zsh \
+           /usr/share/doc/fzf/examples/completion.zsh; do
+    [[ -r "$f" ]] && source "$f"
+  done
+fi
+unset fzf_init
+
 eval "$(zoxide init --cmd cd zsh)"
