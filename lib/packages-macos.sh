@@ -9,7 +9,7 @@ PKG_INSTALL="brew install"
 
 # Always install
 CORE_PKGS=(
-  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh
+  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf
 )
 
 # Server profile additions

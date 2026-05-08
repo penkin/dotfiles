@@ -51,9 +51,37 @@ post_install_os() {
     fi
   done
 
-  # lazygit, yazi: not in apt, install via release tarball
+  # asdf, lazygit, yazi: not in apt, install via release tarball or cargo
+  install_asdf_from_release
   install_lazygit_from_release
   install_yazi_from_cargo_or_skip
+}
+
+install_asdf_from_release() {
+  if command -v asdf &>/dev/null; then
+    info "asdf already installed"
+    return
+  fi
+  info "Installing asdf from GitHub release..."
+  local arch tarball tmpdir url
+  case "$(uname -m)" in
+    x86_64)  arch="linux-amd64" ;;
+    aarch64) arch="linux-arm64"  ;;
+    *) warn "Unknown arch $(uname -m); skipping asdf"; return ;;
+  esac
+  tmpdir=$(mktemp -d)
+  tarball="$tmpdir/asdf.tar.gz"
+  url=$(curl -s https://api.github.com/repos/asdf-vm/asdf/releases/latest \
+    | grep "browser_download_url.*asdf-.*-${arch}\.tar\.gz" | head -1 | cut -d '"' -f 4)
+  if [[ -z "$url" ]]; then
+    warn "Could not find asdf release URL; skipping"
+    return
+  fi
+  curl -fsSL "$url" -o "$tarball"
+  tar -xzf "$tarball" -C "$tmpdir"
+  sudo install -m 0755 "$tmpdir/asdf" /usr/local/bin/asdf
+  rm -rf "$tmpdir"
+  info "Installed asdf"
 }
 
 install_lazygit_from_release() {

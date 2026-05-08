@@ -8,7 +8,7 @@ is_installed() {
 PKG_INSTALL="sudo pacman -S --noconfirm --needed"
 
 CORE_PKGS=(
-  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh
+  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf-vm
 )
 
 SERVER_PKGS=(
