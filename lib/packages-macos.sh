@@ -14,7 +14,7 @@ CORE_PKGS=(
 
 # Server profile additions
 SERVER_PKGS=(
-  lazygit yazi btop
+  lazygit yazi btop harlequin mprocs
 )
 
 # Desktop profile additions (macOS GUI apps via cask)
@@ -38,6 +38,17 @@ bootstrap_pkgmgr() {
   fi
 }
 
+# workmux lives in a third-party tap; brew install needs the tap registered first.
+install_workmux_brew() {
+  if brew list workmux &>/dev/null; then
+    info "workmux already installed"
+    return
+  fi
+  info "Tapping raine/workmux and installing workmux..."
+  brew tap raine/workmux 2>/dev/null || true
+  brew install workmux || warn "Could not install workmux"
+}
+
 # macOS-specific post-install (cask installs, ssh keychain config)
 post_install_os() {
   local cask
@@ -47,6 +58,11 @@ post_install_os() {
       brew install --cask "$cask" || warn "Could not install cask $cask"
     fi
   done
+
+  if [[ "$DOTFILES_PROFILE" == "server" || "$DOTFILES_PROFILE" == "desktop" ]]; then
+    install_workmux_brew
+    install_claude_native
+  fi
 
   # Apple Keychain for SSH
   if [[ ! -f "$HOME/.ssh/config.d/00-darwin.conf" ]]; then

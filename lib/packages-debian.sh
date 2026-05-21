@@ -51,10 +51,41 @@ post_install_os() {
     fi
   done
 
-  # asdf, lazygit, yazi: not in apt, install via release tarball or cargo
+  # asdf, lazygit: not in apt, install via release tarball.
   install_asdf_from_release
   install_lazygit_from_release
+  # rustup before any cargo-based installs so they actually run on a fresh box.
+  install_rustup_or_skip
   install_yazi_from_cargo_or_skip
+
+  if [[ "$DOTFILES_PROFILE" == "server" || "$DOTFILES_PROFILE" == "desktop" ]]; then
+    # workmux, mprocs: Rust crates, no apt package.
+    install_cargo_pkg_or_skip workmux
+    install_cargo_pkg_or_skip mprocs
+    # harlequin: Python TUI, use pipx for isolation.
+    install_pipx_pkg_or_skip harlequin
+    install_claude_native
+  fi
+}
+
+# rustup bootstrap. Ubuntu/Debian's apt `rustc` is typically too old for many
+# crates we want, and rustup is the canonical install path on Linux anyway.
+# `--no-modify-path` avoids rustup editing the stowed ~/.zshrc; the dotfiles
+# put ~/.cargo/bin on PATH directly.
+install_rustup_or_skip() {
+  if command -v cargo &>/dev/null; then
+    info "cargo already installed"
+    return
+  fi
+  info "Bootstrapping rustup (no apt rust — too old for many crates)..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --no-modify-path --default-toolchain stable \
+    || { warn "rustup install reported errors"; return; }
+  # Make cargo visible to the rest of this install run.
+  if [[ -r "$HOME/.cargo/env" ]]; then
+    # shellcheck source=/dev/null
+    . "$HOME/.cargo/env"
+  fi
 }
 
 install_asdf_from_release() {

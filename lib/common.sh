@@ -78,3 +78,48 @@ backup_file() {
     info "Backed up $path → $backup"
   fi
 }
+
+# install_claude_native — Anthropic's official installer drops a self-updating
+# native binary at ~/.local/bin/claude (symlinked into versioned dir under
+# ~/.local/share/claude/). Works on macOS and Linux; preferred over brew cask
+# because the same install path works everywhere and self-updates.
+install_claude_native() {
+  if command -v claude &>/dev/null; then
+    info "claude already installed"
+    return
+  fi
+  info "Installing claude (Anthropic native installer)..."
+  curl -fsSL https://claude.ai/install.sh | bash || warn "claude install reported errors"
+}
+
+# install_cargo_pkg_or_skip CRATE — install a Rust crate via cargo if available.
+# Used as a Linux fallback when a tool isn't packaged in apt/pacman.
+install_cargo_pkg_or_skip() {
+  local crate="$1"
+  if command -v "$crate" &>/dev/null; then
+    info "$crate already installed"
+    return
+  fi
+  if command -v cargo &>/dev/null; then
+    info "Installing $crate via cargo..."
+    cargo install --locked "$crate" || warn "cargo install $crate reported errors"
+  else
+    warn "cargo not present; skipping $crate (install rust + 'cargo install $crate' to add)"
+  fi
+}
+
+# install_pipx_pkg_or_skip PKG — install a Python CLI via pipx if available.
+# Falls back to a warning so we don't pollute the system Python with pip --user.
+install_pipx_pkg_or_skip() {
+  local pkg="$1"
+  if command -v "$pkg" &>/dev/null; then
+    info "$pkg already installed"
+    return
+  fi
+  if command -v pipx &>/dev/null; then
+    info "Installing $pkg via pipx..."
+    pipx install "$pkg" || warn "pipx install $pkg reported errors"
+  else
+    warn "pipx not present; skipping $pkg (install pipx + 'pipx install $pkg' to add)"
+  fi
+}

@@ -108,6 +108,7 @@ esac
 path=(
   "$HOME/scripts"
   "$HOME/.local/bin"
+  "$HOME/.cargo/bin"
   $path
   "$HOME/.local/share/nvim/mason/bin"
 )

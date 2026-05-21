@@ -30,3 +30,5 @@
 
 [diff]
     colorMoved = default
+[gpg]
+	program = /opt/homebrew/bin/gpg

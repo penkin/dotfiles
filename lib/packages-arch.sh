@@ -8,11 +8,11 @@ is_installed() {
 PKG_INSTALL="sudo pacman -S --noconfirm --needed"
 
 CORE_PKGS=(
-  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf-vm
+  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf-vm rust
 )
 
 SERVER_PKGS=(
-  lazygit yazi btop
+  lazygit yazi btop mprocs
 )
 
 DESKTOP_PKGS=(
@@ -30,5 +30,11 @@ bootstrap_pkgmgr() {
 }
 
 post_install_os() {
-  : # nothing distro-specific yet
+  if [[ "$DOTFILES_PROFILE" == "server" || "$DOTFILES_PROFILE" == "desktop" ]]; then
+    # workmux: not in pacman/AUR official repos — install via cargo.
+    install_cargo_pkg_or_skip workmux
+    # harlequin: Python TUI; AUR-only on Arch, prefer pipx for isolation.
+    install_pipx_pkg_or_skip harlequin
+    install_claude_native
+  fi
 }
