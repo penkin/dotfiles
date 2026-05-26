@@ -8,7 +8,7 @@ is_installed() {
 PKG_INSTALL="sudo pacman -S --noconfirm --needed"
 
 CORE_PKGS=(
-  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf-vm rust
+  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf-vm rust glow
 )
 
 SERVER_PKGS=(
@@ -20,7 +20,7 @@ DESKTOP_PKGS=(
   gtk3 qt5ct qt6ct nwg-look
 )
 
-STOW_CORE=(zsh git nvim tmux ssh)
+STOW_CORE=(zsh git nvim tmux ssh glow)
 STOW_SERVER=(lazygit yazi btop)
 STOW_DESKTOP=(hyprland wayland-tools gtk ideavim)
 

@@ -61,6 +61,7 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=auto $realpath'
 # Exports
 export EDITOR='nvim'
 export GPG_TTY=$(tty)
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 # Aliases
 alias ls='eza --icons=auto'
@@ -69,6 +70,7 @@ alias la='eza --icons=auto -la'
 alias vi="nvim"
 alias vim="nvim"
 alias c="clear"
+alias glow='command glow -s "$HOME/.config/glow/styles/catppuccin-mocha.json"'
 alias y="yazi"
 
 # Source any user scripts and secrets

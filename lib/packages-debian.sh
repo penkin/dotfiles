@@ -14,7 +14,7 @@ CORE_PKGS=(
 
 # Optional core (eza is in 24.04+; install conditionally)
 CORE_OPTIONAL_PKGS=(
-  eza btop
+  eza btop glow
 )
 
 # Server profile additions — these need post-apt installs
@@ -24,7 +24,7 @@ SERVER_PKGS=()
 # No desktop on Debian server target
 DESKTOP_PKGS=()
 
-STOW_CORE=(zsh git nvim tmux ssh)
+STOW_CORE=(zsh git nvim tmux ssh glow)
 STOW_SERVER=(lazygit yazi btop)
 STOW_DESKTOP=()
 

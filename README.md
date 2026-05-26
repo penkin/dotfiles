@@ -27,7 +27,7 @@ Override:
 
 | | server | desktop |
 |---|---|---|
-| zsh, git, nvim, tmux, ssh | ✓ | ✓ |
+| zsh, git, nvim, tmux, ssh, glow | ✓ | ✓ |
 | lazygit, yazi, btop | ✓ | ✓ |
 | ripgrep, fzf, eza, zoxide, mosh | ✓ | ✓ |
 | ideavim | — | ✓ |
@@ -45,6 +45,7 @@ Stow packages are organized by tool. Install individually with `stow <pkg>`:
 - **tmux** — TPM, Catppuccin Mocha, prefix `C-a`
 - **ssh** — SSH defaults with ControlMaster multiplexing
 - **lazygit, yazi, btop, ideavim** — TUI tool configs
+- **glow** — Markdown reader, Catppuccin Mocha theme
 - **hyprland, wayland-tools, gtk** — Arch desktop
 - **macos-tools** — Ghostty, Zed (macOS)
 - **zathura, godot** — creative tools

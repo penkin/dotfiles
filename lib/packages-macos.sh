@@ -9,7 +9,7 @@ PKG_INSTALL="brew install"
 
 # Always install
 CORE_PKGS=(
-  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf
+  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf glow
 )
 
 # Server profile additions
@@ -23,7 +23,7 @@ DESKTOP_CASKS=(
 )
 
 # Stow lists per profile
-STOW_CORE=(zsh git nvim tmux ssh)
+STOW_CORE=(zsh git nvim tmux ssh glow)
 STOW_SERVER=(lazygit yazi btop)
 STOW_DESKTOP=(macos-tools ideavim)
 
