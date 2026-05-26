@@ -21,12 +21,10 @@ gui:
       - '#cdd6f4'
     searchingActiveBorderColor:
       - '#f9e2af'
-
   authorColors:
     '*': '#b4befe'
-
 git:
-  paging:
-    colorArg: always
-    pager: delta --color-only --dark
-    useConfig: false
+  pagers:
+    - colorArg: always
+      pager: delta --color-only --dark
+      useConfig: false
