@@ -25,7 +25,7 @@ SERVER_PKGS=()
 DESKTOP_PKGS=()
 
 STOW_CORE=(zsh git nvim tmux ssh glow)
-STOW_SERVER=(lazygit yazi btop)
+STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=()
 
 bootstrap_pkgmgr() {
@@ -65,6 +65,8 @@ post_install_os() {
     # harlequin: Python TUI, use pipx for isolation.
     install_pipx_pkg_or_skip harlequin
     install_claude_native
+    # herdr: no apt package — use the official release installer.
+    install_herdr_native
   fi
 }
 
