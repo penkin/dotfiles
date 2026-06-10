@@ -110,6 +110,13 @@ fi
 # --- Per-OS post-install hook (casks on macOS, lazygit/yazi on Debian) ---
 post_install_os
 
+# --- herdr runtime dir ---
+# herdr writes runtime files (sockets, logs, session.json) into ~/.config/herdr
+# alongside config.toml. Pre-create the dir as a real directory so stow links
+# only config.toml into it, rather than folding the whole dir into a symlink
+# into the repo (which would put herdr's runtime files inside the dotfiles).
+mkdir -p "$HOME/.config/herdr"
+
 # --- Stow packages ---
 info "Stowing core configurations..."
 stow_packages "${STOW_CORE[@]}"

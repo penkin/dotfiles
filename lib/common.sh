@@ -92,6 +92,18 @@ install_claude_native() {
   curl -fsSL https://claude.ai/install.sh | bash || warn "claude install reported errors"
 }
 
+# install_herdr_native — herdr is in homebrew-core on macOS, but has no apt/
+# pacman/AUR package on Linux. The official installer fetches the right release
+# binary for the platform and places it on PATH (no sudo, no shell-rc edits).
+install_herdr_native() {
+  if command -v herdr &>/dev/null; then
+    info "herdr already installed"
+    return
+  fi
+  info "Installing herdr (official installer)..."
+  curl -fsSL https://herdr.dev/install.sh | sh || warn "herdr install reported errors"
+}
+
 # install_cargo_pkg_or_skip CRATE — install a Rust crate via cargo if available.
 # Used as a Linux fallback when a tool isn't packaged in apt/pacman.
 install_cargo_pkg_or_skip() {

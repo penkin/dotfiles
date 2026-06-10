@@ -21,7 +21,7 @@ DESKTOP_PKGS=(
 )
 
 STOW_CORE=(zsh git nvim tmux ssh glow)
-STOW_SERVER=(lazygit yazi btop)
+STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=(hyprland wayland-tools gtk ideavim)
 
 bootstrap_pkgmgr() {
@@ -36,5 +36,7 @@ post_install_os() {
     # harlequin: Python TUI; AUR-only on Arch, prefer pipx for isolation.
     install_pipx_pkg_or_skip harlequin
     install_claude_native
+    # herdr: no pacman/AUR package — use the official release installer.
+    install_herdr_native
   fi
 }

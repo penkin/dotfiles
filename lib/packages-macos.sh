@@ -14,7 +14,7 @@ CORE_PKGS=(
 
 # Server profile additions
 SERVER_PKGS=(
-  lazygit yazi btop harlequin mprocs
+  lazygit yazi btop harlequin mprocs herdr
 )
 
 # Desktop profile additions (macOS GUI apps via cask)
@@ -24,7 +24,7 @@ DESKTOP_CASKS=(
 
 # Stow lists per profile
 STOW_CORE=(zsh git nvim tmux ssh glow)
-STOW_SERVER=(lazygit yazi btop)
+STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=(macos-tools ideavim)
 
 # macOS-specific bootstrap
