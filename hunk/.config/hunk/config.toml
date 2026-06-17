@@ -1,0 +1,7 @@
+# hunk — terminal diff viewer (https://github.com/modem-dev/hunk)
+# Used as git's default pager via `core.pager = hunk pager` in ~/.gitconfig.
+
+theme = "catppuccin-mocha"   # match the rest of the Catppuccin Mocha setup
+mode = "split"               # side-by-side diffs (was delta's side-by-side)
+vcs = "git"
+line_numbers = true

@@ -23,11 +23,25 @@ Override:
 ./install.sh --profile=server --yes  # non-interactive
 ```
 
+## Updating
+
+To pull repo changes onto a machine and reconcile its config, re-run the installer:
+
+```bash
+cd ~/dotfiles && git pull && ./install.sh
+```
+
+`install.sh` is idempotent and doubles as the updater:
+
+- **Edited configs** are live immediately — stowed files are symlinks into the repo, so a `git pull` updates them in place with no extra step.
+- **New packages / missing tools** are installed (`install_packages` skips anything already present) and stowed (`stow -R` is a safe restow).
+- **Removed packages or deleted config files** are cleaned up: a prune step removes dangling symlinks that point back into the repo, so deletions propagate too. Only broken links resolving into the dotfiles dir are touched — nothing else.
+
 ## Profiles
 
 | | server | desktop |
 |---|---|---|
-| zsh, git, nvim, tmux, ssh, glow | ✓ | ✓ |
+| zsh, git, nvim, ssh, glow, hunk | ✓ | ✓ |
 | lazygit, yazi, btop | ✓ | ✓ |
 | ripgrep, fzf, eza, zoxide, mosh | ✓ | ✓ |
 | ideavim | — | ✓ |
@@ -40,9 +54,10 @@ Override:
 Stow packages are organized by tool. Install individually with `stow <pkg>`:
 
 - **zsh** — Zinit, Powerlevel10k, OS-specific fragments, plugins
-- **git** — Git config with delta diffs
+- **git** — Git config with hunk diffs
 - **nvim** — Neovim config
-- **tmux** — TPM, Catppuccin Mocha, prefix `C-a`
+- **hunk** — Diff viewer, Catppuccin Mocha, side-by-side (git's default pager)
+- **herdr** — Terminal multiplexer config
 - **ssh** — SSH defaults with ControlMaster multiplexing
 - **lazygit, yazi, btop, ideavim** — TUI tool configs
 - **glow** — Markdown reader, Catppuccin Mocha theme
@@ -80,7 +95,7 @@ Notes:
 ## Manual stow
 
 ```bash
-stow zsh git nvim tmux              # core
+stow zsh git nvim ssh              # core
 stow -D zsh                         # uninstall
 stow -R zsh                         # restow (after editing)
 ```
@@ -96,11 +111,6 @@ stow zsh
 **Reset broken symlinks:**
 ```bash
 stow -R zsh
-```
-
-**TPM plugins not loading in tmux:**
-```bash
-~/.config/tmux/plugins/tpm/bin/install_plugins
 ```
 
 ## License

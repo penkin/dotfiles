@@ -26,10 +26,6 @@ macos-tools/.config/zed/prompts/
 # Machine-local zsh fragment (gcloud paths, work aliases, etc.)
 zsh/.zsh-local.sh
 
-# TPM clones plugins into here; only the .gitkeep should be tracked
-tmux/.config/tmux/plugins/*
-!tmux/.config/tmux/plugins/.gitkeep
-
 # Host-specific SSH config blocks (work hosts, secrets in hostnames, etc.)
 ssh/.ssh/config.d/*
 !ssh/.ssh/config.d/.gitkeep

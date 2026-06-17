@@ -9,7 +9,7 @@ PKG_INSTALL="sudo apt-get install -y"
 
 # Packages reliably available in Ubuntu 22.04 LTS+ default repos
 CORE_PKGS=(
-  git zsh stow fzf neovim tmux ripgrep mosh zoxide
+  git zsh stow fzf neovim ripgrep mosh zoxide
 )
 
 # Optional core (eza is in 24.04+; install conditionally)
@@ -24,7 +24,7 @@ SERVER_PKGS=()
 # No desktop on Debian server target
 DESKTOP_PKGS=()
 
-STOW_CORE=(zsh git nvim tmux ssh glow)
+STOW_CORE=(zsh git nvim ssh glow hunk)
 STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=()
 
@@ -57,10 +57,11 @@ post_install_os() {
   # rustup before any cargo-based installs so they actually run on a fresh box.
   install_rustup_or_skip
   install_yazi_from_cargo_or_skip
+  # hunk: default git diff pager (no apt package) — install from release.
+  install_hunk
 
   if [[ "$DOTFILES_PROFILE" == "server" || "$DOTFILES_PROFILE" == "desktop" ]]; then
-    # workmux, mprocs: Rust crates, no apt package.
-    install_cargo_pkg_or_skip workmux
+    # mprocs: Rust crate, no apt package.
     install_cargo_pkg_or_skip mprocs
     # harlequin: Python TUI, use pipx for isolation.
     install_pipx_pkg_or_skip harlequin

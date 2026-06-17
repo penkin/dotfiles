@@ -135,15 +135,12 @@ if [[ "$DOTFILES_PROFILE" == "desktop" ]]; then
   fi
 fi
 
-# --- TPM bootstrap for tmux ---
-if command -v tmux &>/dev/null; then
-  if [[ ! -d "$HOME/.config/tmux/plugins/tpm" ]]; then
-    info "Cloning TPM..."
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.config/tmux/plugins/tpm"
-  fi
-  info "Installing TPM plugins..."
-  "$HOME/.config/tmux/plugins/tpm/bin/install_plugins" || warn "TPM plugin install reported errors"
-fi
+# --- Prune orphaned symlinks ---
+# Re-running install.sh restows current packages, but stow never removes links
+# for packages/files that were deleted from the repo. Clean up dead links that
+# point back into the dotfiles dir so updates propagate removals too.
+info "Pruning orphaned symlinks..."
+prune_orphaned_links
 
 # --- SSH runtime setup ---
 mkdir -p "$HOME/.ssh/sockets"

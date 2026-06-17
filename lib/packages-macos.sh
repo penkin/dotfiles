@@ -9,7 +9,7 @@ PKG_INSTALL="brew install"
 
 # Always install
 CORE_PKGS=(
-  git zsh stow fzf eza zoxide neovim tmux ripgrep mosh asdf glow
+  git zsh stow fzf eza zoxide neovim ripgrep mosh asdf glow
 )
 
 # Server profile additions
@@ -23,7 +23,7 @@ DESKTOP_CASKS=(
 )
 
 # Stow lists per profile
-STOW_CORE=(zsh git nvim tmux ssh glow)
+STOW_CORE=(zsh git nvim ssh glow hunk)
 STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=(macos-tools ideavim)
 
@@ -38,17 +38,6 @@ bootstrap_pkgmgr() {
   fi
 }
 
-# workmux lives in a third-party tap; brew install needs the tap registered first.
-install_workmux_brew() {
-  if brew list workmux &>/dev/null; then
-    info "workmux already installed"
-    return
-  fi
-  info "Tapping raine/workmux and installing workmux..."
-  brew tap raine/workmux 2>/dev/null || true
-  brew install workmux || warn "Could not install workmux"
-}
-
 # macOS-specific post-install (cask installs, ssh keychain config)
 post_install_os() {
   local cask
@@ -59,8 +48,10 @@ post_install_os() {
     fi
   done
 
+  # hunk: default git diff pager (third-party tap, no brew-core package).
+  install_hunk
+
   if [[ "$DOTFILES_PROFILE" == "server" || "$DOTFILES_PROFILE" == "desktop" ]]; then
-    install_workmux_brew
     install_claude_native
   fi
 
