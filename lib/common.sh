@@ -55,6 +55,60 @@ stow_packages() {
   done
 }
 
+# _resolve_link_target DIR TARGET — lexically resolve a symlink's TARGET
+# (possibly relative, possibly containing `..`) against its containing DIR into
+# an absolute path. Done purely with string math so it works even when the
+# target no longer exists — which is exactly the case we care about (dangling
+# links). Echoes the normalized absolute path.
+_resolve_link_target() {
+  local base="$1" target="$2" combined part
+  local -a out=()
+  case "$target" in
+    /*) combined="$target" ;;
+    *)  combined="$base/$target" ;;
+  esac
+  local IFS=/
+  for part in $combined; do
+    case "$part" in
+      ''|.) ;;
+      ..)   [[ "${#out[@]}" -gt 0 ]] && unset 'out[${#out[@]}-1]' ;;
+      *)    out+=("$part") ;;
+    esac
+  done
+  printf '/%s' "${out[@]}"
+}
+
+# prune_orphaned_links — remove dangling symlinks that point back into the
+# dotfiles repo. stow only ever *adds* links for the packages it's given; when a
+# package is dropped from a STOW_* list or a config file is deleted from the
+# repo, the old target is left behind as a dead symlink. Re-running install.sh
+# would otherwise never clean those up. We only remove links that are BOTH
+# broken AND resolve into $DOTFILES_DIR, so nothing unrelated is ever touched.
+# Scanned roots cover everywhere this repo stows into ($HOME top level, plus
+# ~/.config and ~/.ssh recursively); folded package dirs self-clean on their own.
+prune_orphaned_links() {
+  local link target abs pruned=0
+  while IFS= read -r link; do
+    [[ -e "$link" ]] && continue          # only dangling links
+    target="$(readlink "$link")"
+    abs="$(_resolve_link_target "$(dirname "$link")" "$target")"
+    if [[ "$abs" == "$DOTFILES_DIR"/* ]]; then
+      rm -f "$link"
+      info "Pruned orphaned symlink: $link"
+      pruned=$((pruned + 1))
+    fi
+  done < <(
+    find "$HOME" -maxdepth 1 -type l 2>/dev/null
+    [[ -d "$HOME/.config" ]] && find "$HOME/.config" -type l 2>/dev/null
+    [[ -d "$HOME/.ssh" ]]    && find "$HOME/.ssh"    -type l 2>/dev/null
+  )
+  if [[ "$pruned" -eq 0 ]]; then
+    info "No orphaned symlinks to prune"
+  else
+    info "Pruned $pruned orphaned symlink(s)"
+  fi
+}
+
 # confirm PROMPT — return 0 if user says yes, 1 otherwise.
 # Honors DOTFILES_ASSUME_YES (set by --yes flag).
 confirm() {
@@ -102,6 +156,51 @@ install_herdr_native() {
   fi
   info "Installing herdr (official installer)..."
   curl -fsSL https://herdr.dev/install.sh | sh || warn "herdr install reported errors"
+}
+
+# install_hunk — hunk is the default git diff pager (core.pager = "hunk pager").
+# It ships as a standalone prebuilt binary (no Node runtime). On macOS it lives
+# in a third-party tap; on Linux there's no distro package, so grab the release
+# tarball directly. Always installed regardless of profile since git config
+# depends on it.
+install_hunk() {
+  if command -v hunk &>/dev/null; then
+    info "hunk already installed"
+    return
+  fi
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    info "Tapping modem-dev/tap and installing hunk..."
+    brew tap modem-dev/tap 2>/dev/null || true
+    # Recent Homebrew refuses to load formulae from untrusted third-party taps
+    # until explicitly trusted; harmless/no-op on older brew that lacks `trust`.
+    brew trust modem-dev/tap 2>/dev/null || true
+    brew install hunk || warn "Could not install hunk"
+  else
+    install_hunk_from_release
+  fi
+}
+
+install_hunk_from_release() {
+  info "Installing hunk from GitHub release..."
+  local asset tmpdir tarball url
+  case "$(uname -m)" in
+    x86_64)  asset="hunkdiff-linux-x64"   ;;
+    aarch64) asset="hunkdiff-linux-arm64" ;;
+    *) warn "Unknown arch $(uname -m); skipping hunk"; return ;;
+  esac
+  tmpdir=$(mktemp -d)
+  tarball="$tmpdir/hunk.tar.gz"
+  url=$(curl -s https://api.github.com/repos/modem-dev/hunk/releases/latest \
+    | grep "browser_download_url.*${asset}\.tar\.gz" | head -1 | cut -d '"' -f 4)
+  if [[ -z "$url" ]]; then
+    warn "Could not find hunk release URL; skipping"
+    return
+  fi
+  curl -fsSL "$url" -o "$tarball"
+  tar -xzf "$tarball" -C "$tmpdir"
+  sudo install -m 0755 "$tmpdir/${asset}/hunk" /usr/local/bin/hunk
+  rm -rf "$tmpdir"
+  info "Installed hunk"
 }
 
 # install_cargo_pkg_or_skip CRATE — install a Rust crate via cargo if available.

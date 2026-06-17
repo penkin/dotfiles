@@ -6,5 +6,6 @@ delivery = "system"
 [ui]
 show_agent_labels_on_pane_borders = true
 
+agent_panel_scope = "all"
 [experimental]
 switch_ascii_input_source_in_prefix = true

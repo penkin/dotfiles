@@ -8,22 +8,10 @@
 
 [core]
 	autocrlf = input
-  pager = delta
-
-[interactive]
-  diffFilter = delta --color-only
+  pager = hunk pager
 
 [commit]
 	gpgsign = true
-
-[delta]
-    navigate = true          # n/N to jump between diff sections
-	side-by-side = true
-    line-numbers = true
-    syntax-theme = Catppuccin Mocha   # or Dracula, Nord, etc.
-    file-style = bold yellow
-    hunk-header-style = file line-number syntax
-	max-line-length = 0
 
 [merge]
     conflictstyle = zdiff3   # cleaner merge conflicts
