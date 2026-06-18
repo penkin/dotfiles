@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-REMOTE_HOST="vm-claude-master" # matches the Host alias in ~/.ssh/config.d/
+REMOTE_HOST="ccd-dev"          # matches the Host alias in ~/.ssh/config.d/
 REMOTE_DIR="/tmp/cc-images"    # server-side target directory
 
 notify() {

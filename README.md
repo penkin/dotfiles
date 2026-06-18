@@ -114,15 +114,15 @@ SSH/herdr.
    block in the stowed `~/.ssh/config` already multiplexes connections. Example:
 
    ```sshconfig
-   # ~/.ssh/config.d/10-vm-claude-master.conf  (gitignored)
-   Host vm-claude-master
-       HostName <vm-ip-or-dns>
+   # ~/.ssh/config.d/10-ccd-dev.conf  (gitignored)
+   Host ccd-dev
+       HostName <vm-ip-or-dns-or-tailscale-name>
        User <your-user>
        IdentityFile ~/.ssh/<your-key>
    ```
 
    Set `REMOTE_HOST` in `~/.local/bin/img2server` to match this alias
-   (defaults to `vm-claude-master`).
+   (defaults to `ccd-dev`).
 
 2. Run `./install.sh --profile=desktop` (installs skhd + starts its service)
    and `stow -R macos-tools`.
