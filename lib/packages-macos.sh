@@ -52,7 +52,7 @@ install_skhd() {
   fi
   # Idempotent: start-service is a harmless no-op if the service is running.
   skhd --start-service 2>/dev/null || true
-  info "skhd service started — grant it Accessibility + Screen Recording in"
+  info "skhd service start requested — grant it Accessibility + Screen Recording in"
   info "System Settings > Privacy & Security for the hotkey to work."
 }
 
