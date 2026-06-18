@@ -100,6 +100,38 @@ stow -D zsh                         # uninstall
 stow -R zsh                         # restow (after editing)
 ```
 
+## SSH screenshot pipeline (macOS desktop)
+
+Capture a screen region with `⌘⇧⌃5`, ship it to the dev server, and get the
+remote path on your clipboard — paste it into a Claude Code session running over
+SSH/herdr.
+
+**One-time setup (not version-controlled — host details are personal):**
+
+1. Create `~/.ssh/config.d/10-ccdev.conf` (gitignored) with your server:
+
+   ```sshconfig
+   Host ccdev
+       HostName <vm-ip-or-dns>
+       User <your-user>
+       IdentityFile ~/.ssh/<your-key>
+   ```
+
+   No `ControlMaster` lines needed — the global `Host *` block already
+   multiplexes connections.
+
+2. Run `./install.sh --profile=desktop` (installs skhd + starts its service)
+   and `stow -R macos-tools`.
+
+3. Grant **skhd** permission in System Settings → Privacy & Security:
+   **Accessibility** (to capture the hotkey) and **Screen Recording** (approved
+   on first capture).
+
+**Use:** press `⌘⇧⌃5`, drag-select a region. A notification shows the remote
+path and it's on your clipboard; `⌘V` into Claude Code. Each capture is a
+unique, immutable file under `/tmp/cc-images/`, so several can be pasted into
+one prompt. Files are cleared on server reboot.
+
 ## Troubleshooting
 
 **Stow conflicts with existing config:**
