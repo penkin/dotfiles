@@ -1,0 +1,4 @@
+# SSH dev-flow screenshot: capture a region, upload to the server, and put the
+# remote path on the clipboard. Dedicated hotkey — never interferes with the
+# native macOS screenshot bindings (cmd+shift+3 / 4 / 5).
+cmd + shift + ctrl - 5 : ~/.local/bin/img2server
