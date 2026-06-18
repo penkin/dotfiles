@@ -38,6 +38,24 @@ bootstrap_pkgmgr() {
   fi
 }
 
+# install_skhd — hotkey daemon for the SSH screenshot pipeline. Lives in the
+# koekeishiya/formulae tap (same tap/trust dance as install_hunk). Starts the
+# background service so the screenshot hotkey works immediately. Desktop only.
+install_skhd() {
+  if ! command -v skhd &>/dev/null; then
+    info "Tapping koekeishiya/formulae and installing skhd..."
+    brew tap koekeishiya/formulae 2>/dev/null || true
+    brew trust koekeishiya/formulae 2>/dev/null || true
+    brew install skhd || { warn "Could not install skhd"; return; }
+  else
+    info "skhd already installed"
+  fi
+  # Idempotent: start-service is a harmless no-op if the service is running.
+  skhd --start-service 2>/dev/null || true
+  info "skhd service start requested — grant it Accessibility + Screen Recording in"
+  info "System Settings > Privacy & Security for the hotkey to work."
+}
+
 # macOS-specific post-install (cask installs, ssh keychain config)
 post_install_os() {
   local cask
@@ -53,6 +71,11 @@ post_install_os() {
 
   if [[ "$DOTFILES_PROFILE" == "server" || "$DOTFILES_PROFILE" == "desktop" ]]; then
     install_claude_native
+  fi
+
+  # skhd: hotkey daemon for the SSH screenshot pipeline (desktop GUI only).
+  if [[ "$DOTFILES_PROFILE" == "desktop" ]]; then
+    install_skhd
   fi
 
   # Apple Keychain for SSH
