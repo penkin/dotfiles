@@ -10,6 +10,13 @@ set -euo pipefail
 REMOTE_HOST="ccd-dev"          # matches the Host alias in ~/.ssh/config.d/
 REMOTE_DIR="/tmp/cc-images"    # server-side target directory
 
+# Upload-connection options. The uploader only needs to move a file: it must
+# NOT set up the host's LocalForwards (those belong to the interactive herdr
+# session and would collide on the forwarded ports), and it must not create or
+# own the shared ControlMaster socket (which would deny the herdr session its
+# forwards). ControlMaster=no still REUSES an existing master for speed.
+SSH_OPTS=(-o ControlMaster=no -o ClearAllForwardings=yes)
+
 notify() {
     osascript -e "display notification \"$1\" with title \"img2server\"" \
         >/dev/null 2>&1 || true
@@ -29,11 +36,11 @@ fi
 # 2. Ensure the remote dir, then copy up. Both reuse the persistent
 #    ControlMaster socket configured globally in ~/.ssh/config.
 # shellcheck disable=SC2029  # REMOTE_DIR is a fixed constant; client-side expansion is intended
-if ! ssh "${REMOTE_HOST}" "mkdir -p ${REMOTE_DIR}"; then
+if ! ssh "${SSH_OPTS[@]}" "${REMOTE_HOST}" "mkdir -p ${REMOTE_DIR}"; then
     notify "could not reach ${REMOTE_HOST}"
     exit 2
 fi
-if ! scp -q "${LOCAL_TMP}" "${REMOTE_HOST}:${REMOTE_DIR}/${FILENAME}"; then
+if ! scp -q "${SSH_OPTS[@]}" "${LOCAL_TMP}" "${REMOTE_HOST}:${REMOTE_DIR}/${FILENAME}"; then
     notify "scp transfer failed"
     exit 2
 fi
