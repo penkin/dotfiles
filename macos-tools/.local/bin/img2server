@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# img2server — capture a screen region, copy it to the remote dev server,
+# and put the remote path on the macOS clipboard for pasting into Claude Code.
+#
+# Trigger: skhd hotkey (cmd+shift+ctrl-5). Also runnable manually.
+# Exit:    0 on success or user-cancel, 2 on transfer failure.
+
+set -euo pipefail
+
+REMOTE_HOST="ccdev"            # matches the Host alias in ~/.ssh/config.d/
+REMOTE_DIR="/tmp/cc-images"    # server-side target directory
+
+notify() {
+    osascript -e "display notification \"$1\" with title \"img2server\"" \
+        >/dev/null 2>&1 || true
+}
+
+FILENAME="img-$(date +%Y%m%d-%H%M%S)-$RANDOM.png"
+TMP_DIR="$(mktemp -d)"
+LOCAL_TMP="${TMP_DIR}/${FILENAME}"
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+# 1. Interactive region capture straight to a temp file. Esc / cancel makes
+#    screencapture exit non-zero and/or write no file — handle both.
+if ! screencapture -i "${LOCAL_TMP}" || [[ ! -s "${LOCAL_TMP}" ]]; then
+    exit 0   # user cancelled — nothing to do
+fi
+
+# 2. Ensure the remote dir, then copy up. Both reuse the persistent
+#    ControlMaster socket configured globally in ~/.ssh/config.
+if ! ssh "${REMOTE_HOST}" "mkdir -p ${REMOTE_DIR}"; then
+    notify "could not reach ${REMOTE_HOST}"
+    exit 2
+fi
+if ! scp -q "${LOCAL_TMP}" "${REMOTE_HOST}:${REMOTE_DIR}/${FILENAME}"; then
+    notify "scp transfer failed"
+    exit 2
+fi
+
+# 3. Put the remote path on the clipboard and notify.
+REMOTE_PATH="${REMOTE_DIR}/${FILENAME}"
+printf '%s' "${REMOTE_PATH}" | pbcopy
+notify "📋 ${REMOTE_PATH}"
