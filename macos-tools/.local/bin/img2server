@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-REMOTE_HOST="ccdev"            # matches the Host alias in ~/.ssh/config.d/
+REMOTE_HOST="vm-claude-master" # matches the Host alias in ~/.ssh/config.d/
 REMOTE_DIR="/tmp/cc-images"    # server-side target directory
 
 notify() {
@@ -28,7 +28,7 @@ fi
 
 # 2. Ensure the remote dir, then copy up. Both reuse the persistent
 #    ControlMaster socket configured globally in ~/.ssh/config.
-    # shellcheck disable=SC2029
+# shellcheck disable=SC2029  # REMOTE_DIR is a fixed constant; client-side expansion is intended
 if ! ssh "${REMOTE_HOST}" "mkdir -p ${REMOTE_DIR}"; then
     notify "could not reach ${REMOTE_HOST}"
     exit 2

@@ -108,17 +108,21 @@ SSH/herdr.
 
 **One-time setup (not version-controlled — host details are personal):**
 
-1. Create `~/.ssh/config.d/10-ccdev.conf` (gitignored) with your server:
+1. Define your Claude Code server as an SSH host alias in a gitignored
+   `~/.ssh/config.d/*.conf` block (host-specific details — IP/user/forwards —
+   never get committed). No `ControlMaster` lines needed; the global `Host *`
+   block in the stowed `~/.ssh/config` already multiplexes connections. Example:
 
    ```sshconfig
-   Host ccdev
+   # ~/.ssh/config.d/10-vm-claude-master.conf  (gitignored)
+   Host vm-claude-master
        HostName <vm-ip-or-dns>
        User <your-user>
        IdentityFile ~/.ssh/<your-key>
    ```
 
-   No `ControlMaster` lines needed — the global `Host *` block already
-   multiplexes connections.
+   Set `REMOTE_HOST` in `~/.local/bin/img2server` to match this alias
+   (defaults to `vm-claude-master`).
 
 2. Run `./install.sh --profile=desktop` (installs skhd + starts its service)
    and `stow -R macos-tools`.
