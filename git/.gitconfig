@@ -4,19 +4,19 @@
 [user]
 	email = chris@penkin.me
 	name = Christopher Penkin
-	signingkey = CE1C0A66CD2841A5
 
 [core]
 	autocrlf = input
   pager = hunk pager
-
-[commit]
-	gpgsign = true
 
 [merge]
     conflictstyle = zdiff3   # cleaner merge conflicts
 
 [diff]
     colorMoved = default
-[gpg]
-	program = /opt/homebrew/bin/gpg
+
+# Machine-local overrides (gitignored): GPG signing key, gpg.program path,
+# commit.gpgsign — only present on machines set up to sign. A missing file is
+# silently ignored, so other machines (e.g. servers) just don't sign.
+[include]
+	path = ~/.gitconfig.local

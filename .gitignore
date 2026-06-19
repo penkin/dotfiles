@@ -26,6 +26,9 @@ macos-tools/.config/zed/prompts/
 # Machine-local zsh fragment (gcloud paths, work aliases, etc.)
 zsh/.zsh-local.sh
 
+# Machine-local git fragment (GPG signing key, gpg.program path, gpgsign)
+git/.gitconfig.local
+
 # Host-specific SSH config blocks (work hosts, secrets in hostnames, etc.)
 ssh/.ssh/config.d/*
 !ssh/.ssh/config.d/.gitkeep
