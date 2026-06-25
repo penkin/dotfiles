@@ -22,10 +22,10 @@ worktree**, not the main checkout:
 When running inside herdr (`HERDR_ENV=1`):
 
 - **Markdown preview is automatic** — a `PostToolUse` hook
-  (`~/.claude/hooks/herdr-md-preview.sh`) opens/refreshes a `glow` preview pane (right
-  column) on every `.md` write. No action needed.
+  (`$CLAUDE_CONFIG_DIR/hooks/herdr-md-preview.sh`) opens/refreshes a `glow` preview pane
+  (right column) on every `.md` write. No action needed.
 - **When you finish a unit of work** that changed files in a git repo, run
-  `~/.claude/hooks/herdr-hunk.sh` to show the diff in a [hunk](https://github.com/modem-dev/hunk)
+  `$CLAUDE_CONFIG_DIR/hooks/herdr-hunk.sh` to show the diff in a [hunk](https://github.com/modem-dev/hunk)
   side pane (below the glow preview) via `hunk diff --watch`. It targets the repo of the
   most-recently-edited file automatically; pass a repo path as `$1` to override. `--watch`
   keeps the pane in sync, so re-running for the same repo is a no-op. Offer first if you're

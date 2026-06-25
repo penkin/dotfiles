@@ -133,6 +133,32 @@ backup_file() {
   fi
 }
 
+# Claude Code runs out of a config dir chosen by $CLAUDE_CONFIG_DIR
+# (see zsh/.zsh_scripts/claude.sh):
+#   ~/.claude-personal — bare `claude` and the `ccp` alias
+#   ~/.claude-dsf      — the `ccd` alias
+# Each dir keeps its own history/projects/sessions, but the *authored* config is
+# shared so one edit + `git pull` updates every profile. stow can't help here
+# (the dirs aren't named `.claude`), so we symlink the shared items directly.
+CLAUDE_CONFIG_DIRS=("$HOME/.claude-personal" "$HOME/.claude-dsf")
+CLAUDE_SHARED_ITEMS=(CLAUDE.md hooks skills settings.json)
+
+# link_claude_configs — point each Claude config dir's shared items at the
+# `claude` package. Real files/dirs already present are backed up first; existing
+# symlinks are replaced in place. Idempotent.
+link_claude_configs() {
+  local src="$DOTFILES_DIR/claude/.claude"
+  local dir item
+  for dir in "${CLAUDE_CONFIG_DIRS[@]}"; do
+    mkdir -p "$dir"
+    for item in "${CLAUDE_SHARED_ITEMS[@]}"; do
+      backup_file "$dir/$item"          # moves aside a real file/dir; no-op on symlinks
+      ln -sfn "$src/$item" "$dir/$item"
+    done
+    info "Linked shared Claude config → $dir"
+  done
+}
+
 # install_claude_native — Anthropic's official installer drops a self-updating
 # native binary at ~/.local/bin/claude (symlinked into versioned dir under
 # ~/.local/share/claude/). Works on macOS and Linux; preferred over brew cask

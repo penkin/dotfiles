@@ -65,6 +65,13 @@ Stow packages are organized by tool. Install individually with `stow <pkg>`:
 - **macos-tools** — Ghostty, Zed (macOS)
 - **zathura, godot** — creative tools
 
+**Claude Code** config (`claude/.claude/`) is *not* stowed. Its authored files
+(`CLAUDE.md`, `hooks/`, `skills/`, `settings.json`) are symlinked by `install.sh`
+into each per-alias config dir — `~/.claude-personal` (bare `claude` / `ccp`) and
+`~/.claude-dsf` (`ccd`) — so all profiles share one source of truth while keeping
+their own history/sessions. Hook commands use `$CLAUDE_CONFIG_DIR` so they resolve
+under whichever dir is active.
+
 ## Machine-local config
 
 Anything specific to one machine — work-VM aliases, Cloud SDK paths, host-only API keys — goes in `~/.zsh-local.sh`. This file is gitignored.

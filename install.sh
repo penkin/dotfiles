@@ -135,6 +135,13 @@ if [[ "$DOTFILES_PROFILE" == "desktop" ]]; then
   fi
 fi
 
+# --- Claude Code shared config ---
+# The `claude` package's authored config (CLAUDE.md, hooks, skills, settings.json)
+# is shared across the per-alias config dirs (~/.claude-personal, ~/.claude-dsf)
+# via symlinks rather than stow, since those dirs aren't named `.claude`.
+info "Linking shared Claude config..."
+link_claude_configs
+
 # --- Prune orphaned symlinks ---
 # Re-running install.sh restows current packages, but stow never removes links
 # for packages/files that were deleted from the repo. Clean up dead links that

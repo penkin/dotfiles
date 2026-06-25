@@ -17,6 +17,16 @@
   "worktree": {
     "baseRef": "fresh"
   },
+  "enabledPlugins": {
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "effortLevel": "xhigh",
+  "skipAutoPermissionPrompt": true,
+  "theme": "dark",
+  "tui": "fullscreen",
   "hooks": {
     "PostToolUse": [
       {
@@ -24,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh '/home/chris/.claude/hooks/herdr-md-preview.sh'",
+            "command": "sh \"$CLAUDE_CONFIG_DIR/hooks/herdr-md-preview.sh\"",
             "timeout": 15
           }
         ]
@@ -36,12 +46,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/home/chris/.claude/hooks/herdr-agent-state.sh' session",
+            "command": "bash \"$CLAUDE_CONFIG_DIR/hooks/herdr-agent-state.sh\" session",
             "timeout": 10
           }
         ]
       }
     ]
-  },
-  "theme": "dark"
+  }
 }

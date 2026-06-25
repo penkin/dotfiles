@@ -24,7 +24,7 @@ SERVER_PKGS=()
 # No desktop on Debian server target
 DESKTOP_PKGS=()
 
-STOW_CORE=(zsh git nvim ssh glow hunk claude)
+STOW_CORE=(zsh git nvim ssh glow hunk)
 STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=()
 
