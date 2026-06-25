@@ -20,7 +20,7 @@ DESKTOP_PKGS=(
   gtk3 qt5ct qt6ct nwg-look
 )
 
-STOW_CORE=(zsh git nvim ssh glow hunk)
+STOW_CORE=(zsh git nvim ssh glow hunk claude)
 STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=(hyprland wayland-tools gtk ideavim)
 

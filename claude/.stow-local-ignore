@@ -1,0 +1,9 @@
+# Package-local stow ignore for the `claude` package.
+# Deliberately does NOT inherit the repo root's `.*\.md$` rule — this package's
+# whole point is the markdown configs (CLAUDE.md, skills/*/SKILL.md), so those
+# MUST be stowed.
+\.git
+\.gitignore
+\.DS_Store
+# Claude runtime / machine-local files (never stow these even if present here)
+settings\.local\.json

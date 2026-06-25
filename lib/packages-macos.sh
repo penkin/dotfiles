@@ -23,7 +23,7 @@ DESKTOP_CASKS=(
 )
 
 # Stow lists per profile
-STOW_CORE=(zsh git nvim ssh glow hunk)
+STOW_CORE=(zsh git nvim ssh glow hunk claude)
 STOW_SERVER=(lazygit yazi btop herdr)
 STOW_DESKTOP=(macos-tools ideavim)
 
