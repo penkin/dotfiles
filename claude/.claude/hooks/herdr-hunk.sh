@@ -1,6 +1,7 @@
 #!/bin/sh
 # herdr-hunk.sh — Claude-invoked helper: show the diff of completed work in a
-# hunk side pane (bottom of the right column, below the glow preview).
+# hunk side pane in the right column. When a glow preview already occupies the
+# right column, hunk stacks below it; otherwise it opens to the right of Claude.
 # Usage: herdr-hunk.sh [repo_path]
 #   repo defaults to the last-edited repo recorded by herdr-md-preview.sh,
 #   else the repo containing $PWD.
@@ -48,13 +49,17 @@ if [ -n "$pane" ] && _pane_alive "$pane"; then
   herdr pane close "$pane" >/dev/null 2>&1
 fi
 
-# Anchor the hunk pane below the glow preview if it exists, else below us.
+# Anchor below the glow preview if it exists (stacking in the right column),
+# else split our own pane to the right so hunk opens beside Claude, not below.
 anchor="$(cat "$STATE/glow-pane" 2>/dev/null)"
-if [ -z "$anchor" ] || ! _pane_alive "$anchor"; then
+if [ -n "$anchor" ] && _pane_alive "$anchor"; then
+  direction=down
+else
   anchor="$HERDR_PANE_ID"
+  direction=right
 fi
 
-newpane="$(_split_from "$anchor" down)"
+newpane="$(_split_from "$anchor" "$direction")"
 if [ -z "$newpane" ]; then
   echo "herdr-hunk: failed to split a pane."
   exit 0
