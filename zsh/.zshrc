@@ -58,10 +58,9 @@ zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --icons=auto $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza --icons=auto $realpath'
 
-# Exports
-export EDITOR='nvim'
+# Exports (interactive-only; environment shared with subprocesses lives in
+# ~/.zshenv — EDITOR, XDG_CONFIG_HOME, CLAUDE_CONFIG_DIR, PATH).
 export GPG_TTY=$(tty)
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 # Aliases
 alias ls='eza --icons=auto'
@@ -105,8 +104,13 @@ esac
 # Machine-local fragment (gitignored, holds gcloud paths, work aliases, etc.)
 [[ -r "$HOME/.zsh-local.sh" ]] && source "$HOME/.zsh-local.sh"
 
-# PATH — consolidated. Add scripts in the scripts folder, neovim/Mason bins,
-# and ~/.local/bin to PATH.
+# PATH — the canonical list lives in ~/.zshenv (so non-interactive shells and
+# subprocesses inherit it). Re-prepend it here too: on macOS /etc/zprofile runs
+# path_helper *after* .zshenv but *before* .zshrc, pushing these user dirs behind
+# the system ones — re-running the prepend after the OS fragments restores their
+# precedence (and over asdf shims). `typeset -U` keeps it dedup'd, so this is a
+# no-op-on-order reassertion, not a second copy on PATH.
+typeset -U path PATH
 path=(
   "$HOME/scripts"
   "$HOME/.local/bin"
