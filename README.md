@@ -91,10 +91,17 @@ For a pure SSH-only server:
 git clone <repo-url> ~/dotfiles
 cd ~/dotfiles
 ./install.sh --profile=server --yes
-chsh -s "$(command -v zsh)"
 ```
 
 Notes:
+- **SSH lands you in zsh automatically.** An unattended (`--yes`) install skips
+  the password-gated `chsh` and instead appends an `exec zsh -l` guard to
+  `~/.bashrc` (Ubuntu's default `~/.profile` sources it on login). Reconnect
+  after install. For a one-off plain bash, run `NO_AUTO_ZSH=1 bash`. To make zsh
+  the real login shell instead, run `chsh -s "$(command -v zsh)"` (and re-login).
+- This matters for `claude`: environment it (and tools it spawns like glow/hunk)
+  needs — `CLAUDE_CONFIG_DIR`, `PATH`, `EDITOR` — is exported from `~/.zshenv`,
+  so it's present in every zsh, but you still need to be *in* zsh for it to load.
 - `lazygit` is installed from GitHub release (not in apt).
 - `yazi` is installed via `cargo install yazi-fm yazi-cli` if Rust is present, otherwise skipped.
 - Optional packages (`eza`, `btop`) install if available on your Ubuntu version.

@@ -153,14 +153,30 @@ prune_orphaned_links
 mkdir -p "$HOME/.ssh/sockets"
 chmod 700 "$HOME/.ssh/sockets"
 
-# --- Default shell ---
-# On Azure AD-joined Linux VMs, `chsh` triggers an MFA device-code flow
-# (PAM module from the aadsshlogin package). That's annoying for an
-# unattended install — fall back to writing an `exec zsh` block into
-# ~/.bashrc, which doesn't require any privilege.
+# --- Default shell: make interactive sessions land in zsh ---
+# Two mechanisms, used together so a server SSH session always starts zsh:
+#   1. chsh -s zsh — changes the login shell. The clean fix, but it can quietly
+#      fail to take effect: zsh missing from /etc/shells, no password prompt in
+#      an unattended (--yes) run, or simply not active until the next login. On
+#      Azure AD-joined VMs `chsh` even triggers an MFA device-code flow
+#      (aadsshlogin PAM module).
+#   2. an `exec zsh -l` guard appended to ~/.bashrc — privilege-free, and it
+#      covers every case where (1) didn't stick. Ubuntu/Debian's default
+#      ~/.profile sources ~/.bashrc on login, so this fires for SSH sessions.
+#      Only added when chsh didn't change the login shell, so a successful chsh
+#      keeps plain `bash` usable.
 azure_ad_vm() {
   command -v dpkg &>/dev/null && \
     { dpkg -s aadsshlogin &>/dev/null || dpkg -s aadsshlogin-selinux &>/dev/null; }
+}
+
+# chsh refuses a shell that isn't listed in /etc/shells; add zsh if missing.
+ensure_zsh_in_etc_shells() {
+  local zsh_path="$1"
+  grep -qxF "$zsh_path" /etc/shells 2>/dev/null && return 0
+  info "Adding $zsh_path to /etc/shells (needed for chsh)"
+  echo "$zsh_path" | sudo tee -a /etc/shells >/dev/null \
+    || warn "Could not write /etc/shells; chsh may fail"
 }
 
 setup_zsh_via_bashrc() {
@@ -173,22 +189,44 @@ setup_zsh_via_bashrc() {
   cat >> "$target" <<'EOF'
 
 # DOTFILES: auto-exec zsh
-# Azure AD-joined VMs require MFA for `chsh`; use profile-based exec instead.
-if [ -t 1 ] && command -v zsh >/dev/null 2>&1 && [ -z "$ZSH_VERSION" ]; then
+# Login shell is still bash (chsh unavailable or not yet effective). Start zsh
+# for interactive sessions so SSH lands in a fully-configured shell. Run
+# `NO_AUTO_ZSH=1 bash` for a one-off plain bash.
+if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && [ -z "$NO_AUTO_ZSH" ] && command -v zsh >/dev/null 2>&1; then
   exec zsh -l
 fi
 EOF
   info "Added zsh auto-exec to $target"
 }
 
-if [[ "$SHELL" != "$(command -v zsh)" ]]; then
-  if azure_ad_vm; then
-    info "Azure AD-joined VM detected (aadsshlogin present)"
-    info "Skipping chsh (would require MFA); using ~/.bashrc auto-exec instead"
-    setup_zsh_via_bashrc
-  elif confirm "Change default shell to zsh?"; then
-    chsh -s "$(command -v zsh)"
-    info "Default shell changed to zsh (restart required)"
+ZSH_PATH="$(command -v zsh || true)"
+if [[ -n "$ZSH_PATH" && "$SHELL" != "$ZSH_PATH" ]]; then
+  login_shell_is_zsh=0
+  if [[ "$DOTFILES_OS" == "macos" ]]; then
+    # macOS reads ~/.zprofile/~/.zshrc, not ~/.bashrc — chsh is the only path.
+    if confirm "Change default shell to zsh?"; then
+      ensure_zsh_in_etc_shells "$ZSH_PATH"
+      chsh -s "$ZSH_PATH" && info "Default shell changed to zsh (restart required)"
+    fi
+  else
+    # Linux. Prefer the privilege-free ~/.bashrc fallback for unattended (--yes)
+    # installs and Azure AD VMs, where chsh needs a password / MFA. Otherwise
+    # offer chsh and still fall back to ~/.bashrc if it doesn't take.
+    if azure_ad_vm; then
+      info "Azure AD-joined VM detected (aadsshlogin present)"
+      info "Skipping chsh (would require MFA); using ~/.bashrc auto-exec instead"
+    elif [[ "${DOTFILES_ASSUME_YES:-0}" == "1" ]]; then
+      info "Unattended install; using ~/.bashrc auto-exec instead of chsh"
+    elif confirm "Change default shell to zsh (chsh)?"; then
+      ensure_zsh_in_etc_shells "$ZSH_PATH"
+      if chsh -s "$ZSH_PATH"; then
+        info "Default shell changed to zsh (effective on next login)"
+        login_shell_is_zsh=1
+      else
+        warn "chsh failed; falling back to ~/.bashrc auto-exec"
+      fi
+    fi
+    [[ "$login_shell_is_zsh" -eq 0 ]] && setup_zsh_via_bashrc
   fi
 fi
 
