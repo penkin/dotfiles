@@ -1,5 +1,12 @@
 onboarding = false
 
+# Executable for new interactive panes. Empty would fall back to $SHELL, which
+# is bash on servers using the ~/.bashrc exec-zsh fallback — so new tabs would
+# open in bash there. Set it explicitly so every new workspace/tab opens zsh,
+# regardless of the login shell. Bare "zsh" resolves on PATH (/bin/zsh on macOS,
+# /usr/bin/zsh on Linux); ~/.zshenv + ~/.zshrc load as for any interactive zsh.
+default_shell = "zsh"
+
 [ui.toast]
 delivery = "system"
 
