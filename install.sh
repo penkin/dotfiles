@@ -118,6 +118,15 @@ post_install_os
 mkdir -p "$HOME/.config/herdr"
 
 # --- Stow packages ---
+# stow refuses to overlay a real (non-symlink) file. Tool installers commonly
+# create some of these before dotfiles are stowed — e.g. rustup writes
+# `. "$HOME/.cargo/env"` into ~/.zshenv. Back up any such real files first
+# (backup_file is a no-op on existing symlinks) so the restow can't conflict.
+# Anything unique from a backed-up file belongs in ~/.zsh-local.sh.
+for f in .zshenv .zshrc .zprofile .zlogin; do
+  backup_file "$HOME/$f"
+done
+
 info "Stowing core configurations..."
 stow_packages "${STOW_CORE[@]}"
 
