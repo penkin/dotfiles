@@ -42,6 +42,7 @@ TARGET="$STATE/glow-target"
 PANEF="$STATE/glow-pane"
 
 ensure_glow_pane() {
+  GLOW_PANE_CREATED=
   pane="$(cat "$PANEF" 2>/dev/null)"
   if [ -n "$pane" ] && _pane_alive "$pane"; then
     return 0
@@ -59,21 +60,34 @@ ensure_glow_pane() {
     return 1
   fi
   printf '%s\n' "$pane" > "$PANEF"
-  # Build the persistent watch loop, embedding the glow style if present.
-  # Pipe glow through `cat` so its pager (pager:true in glow.yml) never blocks
-  # the loop; set width from the pane's real columns (config otherwise pins 80).
+  # Run glow's real pager TUI in a relaunch loop. glow renders the target file
+  # straight to the pane's TTY (-p forces the pager): truecolor catppuccin,
+  # read-only j/k/q navigation, viewport anchored at the top. The pager blocks
+  # until quit, so we cannot also watch from the same shell — instead the hook
+  # bounces glow (send-text q) on each write and this loop relaunches it on the
+  # new content. (The old approach piped `glow … | cat` to dodge the blocking
+  # pager, but a pipe is not a TTY: that stripped color, made the dump look
+  # editable, and left long docs scrolled to the bottom.)
   if [ -f "$GLOW_STYLE" ]; then
-    render="command glow -w \"\$w\" -s '$GLOW_STYLE' \"\$f\" | cat"
+    view="command glow -p -s '$GLOW_STYLE' \"\$f\""
   else
-    render="command glow -w \"\$w\" \"\$f\" | cat"
+    view="command glow -p \"\$f\""
   fi
-  loop="T='$TARGET'; last=; while :; do f=\$(cat \"\$T\" 2>/dev/null); if [ -n \"\$f\" ] && [ -f \"\$f\" ]; then sig=\"\$f:\$(stat -c %Y \"\$f\" 2>/dev/null)\"; if [ \"\$sig\" != \"\$last\" ]; then w=\$(tput cols 2>/dev/null || echo 120); clear; $render; last=\$sig; fi; fi; sleep 1; done"
+  loop="T='$TARGET'; while :; do f=\$(cat \"\$T\" 2>/dev/null); if [ -n \"\$f\" ] && [ -f \"\$f\" ]; then clear; $view; fi; sleep 0.3; done"
   herdr pane run "$pane" "$loop" >/dev/null 2>&1
   _release_lock "$STATE" glow
+  GLOW_PANE_CREATED=1
   return 0
 }
 
 ensure_glow_pane || exit 0
-# Retarget the running loop at the file just written/edited.
+# Point the loop at the file just written/edited.
 printf '%s\n' "$ABS" > "$TARGET"
+# Bounce the pager so it reloads the new content. A freshly created pane has no
+# glow running yet — its loop picks up the target on its own within ~0.3s — so
+# only send `q` when we are reusing an existing pane.
+if [ -z "$GLOW_PANE_CREATED" ]; then
+  pane="$(cat "$PANEF" 2>/dev/null)"
+  [ -n "$pane" ] && herdr pane send-text "$pane" q >/dev/null 2>&1
+fi
 exit 0
