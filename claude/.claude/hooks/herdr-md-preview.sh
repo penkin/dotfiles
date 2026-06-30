@@ -68,12 +68,15 @@ ensure_glow_pane() {
   # new content. (The old approach piped `glow … | cat` to dodge the blocking
   # pager, but a pipe is not a TTY: that stripped color, made the dump look
   # editable, and left long docs scrolled to the bottom.)
+  # Cap wrap at glow's 80-col reading width (min with the pane's real columns)
+  # so wide panes get a comfortable line length and narrow panes still fit,
+  # independent of glow.yml's width.
   if [ -f "$GLOW_STYLE" ]; then
-    view="command glow -p -s '$GLOW_STYLE' \"\$f\""
+    view="command glow -p -w \"\$w\" -s '$GLOW_STYLE' \"\$f\""
   else
-    view="command glow -p \"\$f\""
+    view="command glow -p -w \"\$w\" \"\$f\""
   fi
-  loop="T='$TARGET'; while :; do f=\$(cat \"\$T\" 2>/dev/null); if [ -n \"\$f\" ] && [ -f \"\$f\" ]; then clear; $view; fi; sleep 0.3; done"
+  loop="T='$TARGET'; while :; do f=\$(cat \"\$T\" 2>/dev/null); if [ -n \"\$f\" ] && [ -f \"\$f\" ]; then w=\$(tput cols 2>/dev/null || echo 80); [ \"\$w\" -gt 80 ] && w=80; clear; $view; fi; sleep 0.3; done"
   herdr pane run "$pane" "$loop" >/dev/null 2>&1
   _release_lock "$STATE" glow
   GLOW_PANE_CREATED=1
