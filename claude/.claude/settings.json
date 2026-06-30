@@ -17,6 +17,10 @@
   "worktree": {
     "baseRef": "fresh"
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "enabledPlugins": {
     "chrome-devtools-mcp@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
