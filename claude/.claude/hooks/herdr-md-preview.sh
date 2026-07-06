@@ -27,10 +27,22 @@ FILEDIR="$(dirname -- "$FILE")"
 REPO="$(git -C "$FILEDIR" rev-parse --show-toplevel 2>/dev/null)"
 [ -n "$REPO" ] && printf '%s\n' "$REPO" > "$STATE/last-repo"
 
-# --- Markdown only: drive the glow preview pane. ---
+# --- Markdown, minus noise: drive the glow preview pane. ---
+# Preview the docs you actually read / sign off on (plans, specs, and other
+# real content). Skip the .md files that get written as a side effect of normal
+# work — a denylist, not an allowlist, so a genuine sign-off doc in an
+# unexpected place is never silently missed. Edit the skip patterns below to
+# taste; each `case` arm is one category.
 case "$FILE" in
   *.md) ;;
-  *) exit 0 ;;
+  *) exit 0 ;;                                      # not markdown: nothing to preview
+esac
+case "$FILE" in
+  */memory/*)                            exit 0 ;;  # auto-memory (incl. MEMORY.md)
+  /tmp/*|/private/tmp/*|*/scratchpad/*)  exit 0 ;;  # throwaway temp / scratchpad files
+  */CLAUDE.md|CLAUDE.md|*/CLAUDE.local.md|CLAUDE.local.md) exit 0 ;;  # agent config, not reading
+  */AGENTS.md|AGENTS.md|*/GEMINI.md|GEMINI.md)            exit 0 ;;  # agent config, not reading
+  */.git/*|*/node_modules/*)             exit 0 ;;  # VCS / vendored noise
 esac
 command -v glow >/dev/null 2>&1 || exit 0
 
