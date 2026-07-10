@@ -1,6 +1,9 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
-    "defaultMode": "auto",
     "allow": [
       "Bash(git *)",
       "Bash(dotnet *)",
@@ -13,25 +16,9 @@
       "Bash(git reset --hard*)",
       "Bash(git clean *)",
       "Bash(git worktree remove --force*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "worktree": {
-    "baseRef": "fresh"
-  },
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
-  "enabledPlugins": {
-    "chrome-devtools-mcp@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
-  },
-  "effortLevel": "xhigh",
-  "skipAutoPermissionPrompt": true,
-  "theme": "dark",
-  "tui": "fullscreen",
   "hooks": {
     "PostToolUse": [
       {
@@ -57,5 +44,23 @@
         ]
       }
     ]
+  },
+  "worktree": {
+    "baseRef": "fresh"
+  },
+  "enabledPlugins": {
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "effortLevel": "xhigh",
+  "tui": "fullscreen",
+  "theme": "dark",
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true,
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
   }
 }
