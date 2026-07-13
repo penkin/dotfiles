@@ -141,7 +141,7 @@ backup_file() {
 # shared so one edit + `git pull` updates every profile. stow can't help here
 # (the dirs aren't named `.claude`), so we symlink the shared items directly.
 CLAUDE_CONFIG_DIRS=("$HOME/.claude-personal" "$HOME/.claude-dsf")
-CLAUDE_SHARED_ITEMS=(CLAUDE.md hooks skills settings.json)
+CLAUDE_SHARED_ITEMS=(CLAUDE.md commands hooks skills settings.json)
 
 # link_claude_configs — point each Claude config dir's shared items at the
 # `claude` package. Real files/dirs already present are backed up first; existing
