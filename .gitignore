@@ -32,3 +32,8 @@ git/.gitconfig.local
 # Host-specific SSH config blocks (work hosts, secrets in hostnames, etc.)
 ssh/.ssh/config.d/*
 !ssh/.ssh/config.d/.gitkeep
+
+# Claude Code working-copy state: agent worktrees (full checkouts of this repo)
+# and this copy's permission grants. Both are per-machine, never shared.
+.claude/worktrees/
+.claude/settings.local.json
