@@ -30,3 +30,9 @@
 # text to the Mac's Hammerspoon speak-server over Tailscale. Point it at the
 # Mac's MagicDNS name — `tailscale status` on either machine shows it.
 # export SPEAK_HOST='my-mac.tailnet-name.ts.net'
+
+# By default `speak` uses the Mac's System Voice (System Settings →
+# Accessibility → Spoken Content), which is the only way to get a Siri voice.
+# Set these to pin a named voice from `say -v '?'`, or change the pace.
+# export SPEAK_VOICE='Oliver (Enhanced)'
+# export SPEAK_RATE=195

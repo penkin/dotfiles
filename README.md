@@ -186,10 +186,17 @@ rather than on top of each other.
 3. Launch it once — `open -a Hammerspoon` — and allow it to start at login.
    Afterwards `open -g hammerspoon://reload` reloads the config from a terminal.
 
-Premium Siri voices are a manual download (System Settings → Accessibility →
-Spoken Content → Manage Voices). Both the script and the Lua module degrade
-through a stock UK voice to the system default if the preferred one is absent, so
-nothing breaks on a fresh Mac. Override per machine with `SPEAK_VOICE`/`SPEAK_RATE`.
+**Voice.** Neither path passes a `-v` flag, so `say` uses whatever is set as the
+**System Voice** (System Settings → Accessibility → Spoken Content). Choose the
+voice there and both the local and the remote path follow it — nothing to
+configure in this repo.
+
+That default is deliberate. The Siri voices are the best ones macOS offers and
+the *only* ones `say` cannot select by name — they never appear in `say -v '?'`
+— so passing any `-v` would silently downgrade a Siri voice to a stock one. To
+pin a specific named voice instead, set `SPEAK_VOICE` (local path) or the
+`VOICE` constant in `speak-server.lua` (remote path). `SPEAK_RATE` sets words
+per minute either way.
 
 **Remote setup** (VM, or any machine without `say`): put the Mac's Tailscale
 MagicDNS name in the gitignored `~/.zsh-local.sh` —

@@ -24,20 +24,13 @@ local M = {}
 local PORT = 8722
 local RATE = "195"
 
--- The premium Siri voices are a manual download (System Settings →
--- Accessibility → Spoken Content → Manage Voices), so degrade through a stock
--- UK voice to the system default rather than failing on a fresh Mac.
-local function resolveVoice()
-  local installed = hs.execute("/usr/bin/say -v '?'") or ""
-  for _, name in ipairs({ "Serena (Premium)", "Serena", "Daniel" }) do
-    if installed:find(name, 1, true) then
-      return name
-    end
-  end
-  return nil
-end
-
-local VOICE = resolveVoice()
+-- nil means "pass no -v flag", so `say` uses the Mac's System Voice (System
+-- Settings → Accessibility → Spoken Content). That is deliberate: the Siri
+-- voices are the best ones available AND the only ones `say` cannot address by
+-- name — they never appear in `say -v '?'` — so naming any voice here would
+-- silently downgrade a Siri voice to a stock one. Set this to a name from
+-- `say -v '?'` only if you want to pin a specific voice regardless.
+local VOICE = nil
 
 local queue = {}
 local speaking = false
@@ -91,6 +84,6 @@ M.server:setCallback(function(method, path, _headers, body)
 end)
 M.server:start()
 
-hs.printf("speak-server: listening on %d (voice: %s)", PORT, VOICE or "system default")
+hs.printf("speak-server: listening on %d (voice: %s)", PORT, VOICE or "System Voice")
 
 return M

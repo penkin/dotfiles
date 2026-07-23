@@ -14,7 +14,8 @@
 # Environment:
 #   SPEAK_HOST   Mac's Tailscale MagicDNS name. Remote machines only; set it in
 #                ~/.zsh-local.sh (gitignored — see zsh/.zsh-local.sh.example).
-#   SPEAK_VOICE  Voice name; falls back to a stock voice if not installed.
+#   SPEAK_VOICE  Override the Mac's System Voice with a named one from
+#                `say -v '?'`. Leave unset to use the System Voice (see below).
 #   SPEAK_RATE   Words per minute (default 195).
 #   SPEAK_PORT   speak-server port (default 8722).
 
@@ -39,17 +40,19 @@ if command -v say &>/dev/null; then
     exit 0
   fi
 
-  # The premium Siri voices are a manual download (System Settings →
-  # Accessibility → Spoken Content → Manage Voices), so degrade through a stock
-  # UK voice to the system default rather than failing on a fresh Mac.
+  # No -v by default, deliberately: `say` then uses the Mac's System Voice
+  # (System Settings → Accessibility → Spoken Content). The Siri voices are the
+  # best ones available AND the only ones `say` cannot address by name — they
+  # never appear in `say -v '?'` — so passing any -v would silently downgrade a
+  # Siri voice to a stock one. Set SPEAK_VOICE to pin a specific named voice.
   say_args=(-r "$RATE")
-  for candidate in "${SPEAK_VOICE:-}" "Serena (Premium)" "Serena" "Daniel"; do
-    [[ -n "$candidate" ]] || continue
-    if say -v '?' | grep -qF "$candidate"; then
-      say_args+=(-v "$candidate")
-      break
+  if [[ -n "${SPEAK_VOICE:-}" ]]; then
+    if say -v '?' | grep -qF "$SPEAK_VOICE"; then
+      say_args+=(-v "$SPEAK_VOICE")
+    else
+      echo "speak: voice '$SPEAK_VOICE' is not installed; using the System Voice" >&2
     fi
-  done
+  fi
 
   if [[ $# -gt 0 ]]; then
     say "${say_args[@]}" "$*"
