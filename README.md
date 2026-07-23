@@ -165,16 +165,37 @@ into `speak`; `/dictate` does the same for the previous response.
 ```bash
 speak "build is green"        # argument
 git log --oneline -5 | speak  # stdin
+speak --md PLAN.md            # strip Markdown syntax first
 speak stop                    # interrupt playback, clear the queue
 ```
+
+**Reading Markdown.** Specs and implementation plans are the main thing worth
+listening to, and there are two ways to hear one:
+
+- **Ask Claude** — "dictate PLAN.md to me". It reads the document through section by
+  section, announcing each section as it goes, summarising code blocks and tables in
+  a sentence each, and reading paths naturally. This is the good one; the rules live
+  in `claude/.claude/CLAUDE.md`.
+- **`speak --md FILE`** — a mechanical strip with no LLM in the loop. Drops
+  frontmatter, HTML comments, and horizontal rules; replaces code blocks and tables
+  with a one-line mention; turns checklists into "done"/"to do"; unwraps links,
+  emphasis, and list markers. Instant, but it reads paths literally and can't
+  summarise anything.
 
 **How it routes.** The script (`bin/.local/bin/speak`) branches on tool
 availability, not hostname:
 
-- **Where `say` exists** (macOS) it speaks locally, and that's the whole story.
-- **Everywhere else** (the Azure VM) it POSTs the text over Tailscale to the Mac's
-  Hammerspoon `speak-server` on port 8722, which speaks it there. No audio stack is
-  needed on the VM, and only text crosses the network.
+- **Everywhere `say` is missing** (the Azure VM) it POSTs the text over Tailscale to
+  the Mac's Hammerspoon `speak-server` on port 8722, which speaks it there. No audio
+  stack is needed on the VM, and only text crosses the network.
+- **On the Mac** it POSTs to that same server on `localhost`, rather than calling
+  `say` directly. That keeps both machines on one code path, and it returns
+  immediately instead of blocking for the length of the speech — which matters when a
+  spec takes eight minutes to read and the caller is a tool with a timeout.
+- **Falling back to direct `say`** happens when the server is unreachable (Hammerspoon
+  not running), or when `SPEAK_VOICE`/`SPEAK_RATE` is set — the server has no
+  per-request voice or rate, so honouring an explicit override means bypassing it.
+  This path blocks until the speech finishes.
 
 Requests are queued, so two dictations fired back to back play one after the other
 rather than on top of each other.

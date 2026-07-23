@@ -9,6 +9,8 @@
 # Usage:
 #   speak "some text"
 #   some-command | speak
+#   speak --md PLAN.md    # strip Markdown syntax before speaking
+#   some-command | speak --md
 #   speak stop            # interrupt playback and clear the queue
 #
 # Environment:
@@ -16,36 +18,158 @@
 #                ~/.zsh-local.sh (gitignored — see zsh/.zsh-local.sh.example).
 #   SPEAK_VOICE  Override the Mac's System Voice with a named one from
 #                `say -v '?'`. Leave unset to use the System Voice (see below).
-#   SPEAK_RATE   Words per minute (default 195).
+#   SPEAK_RATE   Words per minute. Unset means the server's own rate (195).
 #   SPEAK_PORT   speak-server port (default 8722).
 
 set -euo pipefail
 
-RATE="${SPEAK_RATE:-195}"
 PORT="${SPEAK_PORT:-8722}"
 
-# --- Local playback (macOS) --------------------------------------------------
-if command -v say &>/dev/null; then
-  if [[ "${1:-}" == "stop" ]]; then
-    # Clear speak-server's queue first, if it's up. Killing `say` on its own is
-    # not enough: the server sees its task exit and immediately starts the next
-    # queued item, so a stop would only skip a track. Silent no-op when
-    # Hammerspoon isn't running, or when this Mac isn't the one hosting it.
-    if command -v curl &>/dev/null; then
-      printf 'stop' \
-        | curl -sf -m 2 -X POST --data-binary @- "http://localhost:${PORT}/stop" \
-          >/dev/null 2>&1 || true
-    fi
+# --- Markdown → speech -------------------------------------------------------
+# Mechanical cleanup for when there is no LLM in the loop. It strips syntax that
+# `say` would otherwise read as noise, and replaces the blocks that simply do
+# not work as audio with a one-line mention. For a spec or plan you actually
+# want to absorb, ask Claude to dictate it instead — it can summarise a snippet
+# in a sentence and read paths naturally, which no filter can do.
+md_to_speech() {
+  # SC2016: the backticks in the sed script are literal Markdown syntax to be
+  # stripped, not command substitution — single quotes are exactly right here.
+  # shellcheck disable=SC2016
+  awk '
+    # --- YAML frontmatter: drop it entirely ---
+    NR == 1 && /^---[[:space:]]*$/ { fm = 1; next }
+    fm { if ($0 ~ /^(---|\.\.\.)[[:space:]]*$/) fm = 0; next }
+
+    {
+      # --- fenced code: one mention, then skip to the closing fence ---
+      if (fence) {
+        if ($0 ~ /^[[:space:]]*(```|~~~)/) fence = 0
+        next
+      }
+      if ($0 ~ /^[[:space:]]*(```|~~~)/) {
+        if (table) { print "There is a table here."; table = 0 }
+        print "There is a code block here."
+        fence = 1
+        next
+      }
+
+      # --- HTML comments ---
+      if (comment) { if ($0 ~ /-->/) comment = 0; next }
+      if ($0 ~ /<!--/ && $0 !~ /-->/) { comment = 1; next }
+
+      # --- tables: collapse a run of pipe rows into one mention ---
+      if ($0 ~ /^[[:space:]]*\|/) { table = 1; next }
+      if (table) { print "There is a table here."; table = 0 }
+
+      # --- horizontal rules ---
+      if ($0 ~ /^[[:space:]]*([-*_][[:space:]]*){3,}$/) next
+
+      # --- ATX headings: their own sentence, so `say` pauses on them ---
+      if ($0 ~ /^[[:space:]]*#{1,6}[[:space:]]/) {
+        hashes = $0
+        sub(/^[[:space:]]*/, "", hashes)
+        n = 0
+        while (substr(hashes, n + 1, 1) == "#") n++
+        title = substr(hashes, n + 1)
+        sub(/^[[:space:]]+/, "", title)
+        sub(/[[:space:]]*#*[[:space:]]*$/, "", title)
+        if (title == "") next
+        # The top-level heading is the document title; deeper ones are signposts.
+        print (n <= 1 ? title "." : "Section: " title ".")
+        next
+      }
+
+      print
+    }
+    END { if (table) print "There is a table here." }
+  ' "$@" \
+  | sed -E \
+      -e 's/!\[[^]]*\]\([^)]*\)//g' \
+      -e 's/\[([^]]*)\]\([^)]*\)/\1/g' \
+      -e 's/^([[:space:]]*)[-*+][[:space:]]+\[[xX]\][[:space:]]*/\1Done: /' \
+      -e 's/^([[:space:]]*)[-*+][[:space:]]+\[[[:space:]]\][[:space:]]*/\1To do: /' \
+      -e 's/^[[:space:]]*[-*+][[:space:]]+//' \
+      -e 's/^[[:space:]]*[0-9]+[.)][[:space:]]+//' \
+      -e 's/^[[:space:]]*>[[:space:]]?//' \
+      -e 's/`([^`]*)`/\1/g' \
+      -e 's/(\*\*|__)([^*_]+)(\*\*|__)/\2/g' \
+      -e 's/(\*|_)([^*_]+)(\*|_)/\2/g' \
+      -e 's/<[^>]+>//g' \
+      -e 's/[[:space:]]+$//' \
+  | cat -s
+}
+
+# post_text URL — send stdin to a speak-server. Non-zero if it is unreachable.
+post_text() {
+  curl -sf -m 10 -X POST --data-binary @- "$1/speak" >/dev/null
+}
+
+# --- Parse arguments ---------------------------------------------------------
+MD=0
+if [[ "${1:-}" == "--md" ]]; then
+  MD=1
+  shift
+fi
+
+# --- Stop --------------------------------------------------------------------
+if [[ "${1:-}" == "stop" ]]; then
+  if command -v curl &>/dev/null; then
+    # Clear the server's queue. Killing `say` on its own is not enough: the
+    # server sees its task exit and immediately starts the next queued item, so
+    # a stop would only skip a track. The body is a placeholder the server
+    # ignores, but it must be non-empty — a bodyless POST is answered with a 400
+    # before the callback ever runs.
+    stop_host="localhost"
+    command -v say &>/dev/null \
+      || stop_host="${SPEAK_HOST:?not set — put 'export SPEAK_HOST=<mac-magicdns-name>' in ~/.zsh-local.sh}"
+    printf 'stop' \
+      | curl -sf -m 3 -X POST --data-binary @- "http://${stop_host}:${PORT}/stop" \
+        >/dev/null 2>&1 || true
+  fi
+  if command -v say &>/dev/null; then
     killall say 2>/dev/null || true
+  fi
+  exit 0
+fi
+
+# --- Collect the text --------------------------------------------------------
+if (( MD )); then
+  if (( $# )); then
+    for f in "$@"; do
+      [[ -r "$f" ]] || { echo "speak: cannot read '$f'" >&2; exit 1; }
+    done
+    text="$(md_to_speech "$@")"
+  else
+    text="$(md_to_speech)"
+  fi
+elif (( $# )); then
+  text="$*"
+else
+  text="$(cat)"
+fi
+
+[[ -n "${text//[[:space:]]/}" ]] || exit 0   # nothing worth saying
+
+# --- Deliver -----------------------------------------------------------------
+if command -v say &>/dev/null; then
+  # Prefer the local speak-server even on the Mac. It queues, so back-to-back
+  # dictations play in order rather than on top of each other, and it returns
+  # immediately — which matters for a long document, since a direct `say` blocks
+  # the caller for the whole read (minutes, for a spec read section by section).
+  # An explicit SPEAK_VOICE/SPEAK_RATE goes direct instead: the server has no
+  # per-request voice or rate, so honouring the override means bypassing it.
+  if [[ -z "${SPEAK_VOICE:-}${SPEAK_RATE:-}" ]] \
+     && command -v curl &>/dev/null \
+     && printf '%s' "$text" | post_text "http://localhost:${PORT}"; then
     exit 0
   fi
 
-  # No -v by default, deliberately: `say` then uses the Mac's System Voice
-  # (System Settings → Accessibility → Spoken Content). The Siri voices are the
-  # best ones available AND the only ones `say` cannot address by name — they
-  # never appear in `say -v '?'` — so passing any -v would silently downgrade a
-  # Siri voice to a stock one. Set SPEAK_VOICE to pin a specific named voice.
-  say_args=(-r "$RATE")
+  # Direct playback. No -v by default, deliberately: `say` then uses the Mac's
+  # System Voice (System Settings → Accessibility → Spoken Content). The Siri
+  # voices are the best ones available AND the only ones `say` cannot address by
+  # name — they never appear in `say -v '?'` — so passing any -v would silently
+  # downgrade a Siri voice to a stock one.
+  say_args=(-r "${SPEAK_RATE:-195}")
   if [[ -n "${SPEAK_VOICE:-}" ]]; then
     if say -v '?' | grep -qF "$SPEAK_VOICE"; then
       say_args+=(-v "$SPEAK_VOICE")
@@ -53,12 +177,7 @@ if command -v say &>/dev/null; then
       echo "speak: voice '$SPEAK_VOICE' is not installed; using the System Voice" >&2
     fi
   fi
-
-  if [[ $# -gt 0 ]]; then
-    say "${say_args[@]}" "$*"
-  else
-    say "${say_args[@]}" -f -
-  fi
+  printf '%s' "$text" | say "${say_args[@]}" -f -
   exit 0
 fi
 
@@ -69,18 +188,4 @@ if ! command -v curl &>/dev/null; then
 fi
 
 MAC_HOST="${SPEAK_HOST:?not set — put 'export SPEAK_HOST=<mac-magicdns-name>' in ~/.zsh-local.sh}"
-URL="http://${MAC_HOST}:${PORT}"
-
-if [[ "${1:-}" == "stop" ]]; then
-  # The body is a placeholder the server ignores, but it must be non-empty:
-  # Hammerspoon's HTTP server answers a bodyless POST with a 400 before the
-  # callback ever runs, so a bare `-X POST` would never reach /stop.
-  printf 'stop' | curl -sf -m 3 -X POST --data-binary @- "${URL}/stop" >/dev/null
-  exit 0
-fi
-
-if [[ $# -gt 0 ]]; then
-  printf '%s' "$*" | curl -sf -m 5 -X POST --data-binary @- "${URL}/speak" >/dev/null
-else
-  curl -sf -m 5 -X POST --data-binary @- "${URL}/speak" >/dev/null
-fi
+printf '%s' "$text" | post_text "http://${MAC_HOST}:${PORT}"

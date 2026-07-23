@@ -37,15 +37,49 @@ When running inside herdr (`HERDR_ENV=1`):
 
 ## Dictation
 
-When I ask you to "dictate", "read aloud", or "speak" something:
+When I ask you to "dictate", "read aloud", or "speak" something, pipe a
+spoken-friendly version to `speak` via stdin (a heredoc is fine).
 
-- Pipe a spoken-friendly version to the `speak` command via stdin (a heredoc is fine).
-- Rewrite it for the ear: strip markdown syntax, expand abbreviations, replace code
-  blocks with a one-sentence summary each, and read file paths naturally ("the payroll
-  service in EJM dot API"), never literally.
-- Keep it under roughly two minutes of speech unless I ask for the full thing.
-- `speak stop` interrupts playback and clears the queue if I ask you to stop.
+Rewrite for the ear, always:
 
-`speak` works the same in every session: on the Mac it plays locally, and on the
-Azure VM it POSTs the text over Tailscale to the Mac, which speaks it. Nothing to
-configure per session.
+- Strip markdown syntax. No hashes, asterisks, backticks, or pipes should survive.
+- Expand abbreviations, and read file paths naturally ("the payroll service in EJM
+  dot API"), never character by character.
+- Summarise each code block in one sentence — "a snippet registering the payroll
+  client with a retry handler" — rather than reading the code. Same for tables: say
+  what it compares and what it concludes, not the cells.
+- Keep link text, drop the URL.
+
+### Markdown documents — specs and implementation plans
+
+Reading these to me is the main thing I use dictation for, so treat a `.md` spec or
+plan as the document it is, not as a block of text:
+
+- **Read it through in full, section by section.** Do not condense it into a summary
+  unless I ask — I want the detail, just in a form I can listen to.
+- Announce each section as you reach it ("Next section, error handling") so I can
+  follow the structure without seeing it.
+- Open with one sentence of orientation: what the document is, and roughly how many
+  sections it has.
+- Send each section as its own `speak` call. They queue and play in order, so this
+  costs nothing — and it means `speak stop` drops the current section rather than
+  losing the whole read.
+- Keep the author's ordering and decisions. Don't reorder, editorialise, or quietly
+  skip sections you judge less interesting.
+- Read checklist items as "done" and "to do".
+- Check with me first if the read will run beyond about fifteen minutes.
+
+### Everything else
+
+Dictating your own previous response, or an ad-hoc answer, should stay under roughly
+two minutes unless I ask for the full thing.
+
+### Mechanics
+
+- `speak` returns as soon as the text is queued — it does not block for the duration
+  of playback, so don't worry about long reads timing out a tool call.
+- `speak stop` interrupts playback and clears the queue.
+- `speak --md FILE` is a mechanical syntax strip for when no rewrite is wanted. Your
+  rewrite is better, so prefer it unless I explicitly ask for the raw read.
+- It works the same in every session: on the Mac it plays locally, and on the Azure VM
+  it goes over Tailscale to the Mac. Nothing to configure per session.
