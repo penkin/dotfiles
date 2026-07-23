@@ -128,6 +128,16 @@ fpath=("$HOME/.zsh/completions" $fpath)
 autoload -U compinit && compinit
 zinit cdreplay -q
 
+ssh() {
+  command ssh "$@"
+  local ret=$?
+  stty sane
+  # pop kitty keyboard protocol, disable mouse tracking,
+  # bracketed paste, alt screen; restore cursor
+  printf '\e[<u\e[?1000l\e[?1002l\e[?1003l\e[?1006l\e[?2004l\e[?1049l\e[?25h'
+  return $ret
+}
+
 # Shell integrations (must be at the end of .zshrc)
 
 # fzf — `--zsh` is fzf 0.48+ (Feb 2024). Older fzf packages (e.g. Ubuntu 22.04/24.04
