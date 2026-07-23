@@ -25,3 +25,8 @@
 
 # Example: work-specific alias
 # alias myvm='ssh user@10.0.0.1'
+
+# Dictation: on any machine without `say` (i.e. not the Mac), `speak` POSTs the
+# text to the Mac's Hammerspoon speak-server over Tailscale. Point it at the
+# Mac's MagicDNS name — `tailscale status` on either machine shows it.
+# export SPEAK_HOST='my-mac.tailnet-name.ts.net'

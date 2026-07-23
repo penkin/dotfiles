@@ -41,18 +41,20 @@ cd ~/dotfiles && git pull && ./install.sh
 
 | | server | desktop |
 |---|---|---|
-| zsh, git, nvim, ssh, glow, hunk | ✓ | ✓ |
+| bin, zsh, git, nvim, ssh, glow, hunk | ✓ | ✓ |
 | lazygit, yazi, btop | ✓ | ✓ |
 | ripgrep, fzf, eza, zoxide, mosh | ✓ | ✓ |
 | ideavim | — | ✓ |
 | Hyprland + wayland tools (Arch) | — | ✓ |
 | GTK theme (Arch) | — | ✓ |
 | Ghostty + Zed (macOS) | — | ✓ |
+| Hammerspoon + speak-server (macOS) | — | ✓ |
 
 ## Packages
 
 Stow packages are organized by tool. Install individually with `stow <pkg>`:
 
+- **bin** — Cross-OS executables for `~/.local/bin` (currently `speak`)
 - **zsh** — Zinit, Powerlevel10k, OS-specific fragments, plugins
 - **git** — Git config with hunk diffs
 - **nvim** — Neovim config
@@ -63,6 +65,7 @@ Stow packages are organized by tool. Install individually with `stow <pkg>`:
 - **glow** — Markdown reader, Catppuccin Mocha theme
 - **hyprland, wayland-tools, gtk** — Arch desktop
 - **macos-tools** — Ghostty, Zed (macOS)
+- **hammerspoon** — Hammerspoon config + `speak-server` TTS endpoint (macOS)
 - **zathura, godot** — creative tools
 
 **Claude Code** config (`claude/.claude/`) is *not* stowed. Its authored files
@@ -82,6 +85,9 @@ A template is provided at `zsh/.zsh-local.sh.example`:
 cp zsh/.zsh-local.sh.example ~/.zsh-local.sh
 $EDITOR ~/.zsh-local.sh
 ```
+
+On every machine that isn't the Mac, this is also where `SPEAK_HOST` lives — see
+[Dictation](#dictation-speak) below.
 
 ## Ubuntu Server
 
@@ -149,6 +155,54 @@ SSH/herdr.
 path and it's on your clipboard; `⌘V` into Claude Code. Each capture is a
 unique, immutable file under `/tmp/cc-images/`, so several can be pasted into
 one prompt. Files are cleared on server reboot.
+
+## Dictation (`speak`)
+
+`speak` reads text aloud through the Mac's speakers, from any machine. Ask a Claude
+Code session to "dictate that plan to me" and it pipes a spoken-friendly rewrite
+into `speak`; `/dictate` does the same for the previous response.
+
+```bash
+speak "build is green"        # argument
+git log --oneline -5 | speak  # stdin
+speak stop                    # interrupt playback, clear the queue
+```
+
+**How it routes.** The script (`bin/.local/bin/speak`) branches on tool
+availability, not hostname:
+
+- **Where `say` exists** (macOS) it speaks locally, and that's the whole story.
+- **Everywhere else** (the Azure VM) it POSTs the text over Tailscale to the Mac's
+  Hammerspoon `speak-server` on port 8722, which speaks it there. No audio stack is
+  needed on the VM, and only text crosses the network.
+
+Requests are queued, so two dictations fired back to back play one after the other
+rather than on top of each other.
+
+**Mac setup** (`./install.sh --profile=desktop` does the first two):
+
+1. Installs the `hammerspoon` cask and creates `~/.hammerspoon`.
+2. Stows the `hammerspoon` package (`init.lua` + `speak-server.lua`).
+3. Launch it once — `open -a Hammerspoon` — and allow it to start at login.
+   Afterwards `open -g hammerspoon://reload` reloads the config from a terminal.
+
+Premium Siri voices are a manual download (System Settings → Accessibility →
+Spoken Content → Manage Voices). Both the script and the Lua module degrade
+through a stock UK voice to the system default if the preferred one is absent, so
+nothing breaks on a fresh Mac. Override per machine with `SPEAK_VOICE`/`SPEAK_RATE`.
+
+**Remote setup** (VM, or any machine without `say`): put the Mac's Tailscale
+MagicDNS name in the gitignored `~/.zsh-local.sh` —
+
+```bash
+export SPEAK_HOST='my-mac.tailnet-name.ts.net'   # tailscale status shows it
+```
+
+**Security.** `speak-server` executes nothing: the request body is written to a
+temp file and handed to `/usr/bin/say` as an argv array, never through a shell.
+The exposure is "whoever can reach port 8722 can make the Mac talk", and
+reachability is gated by Tailscale. If the tailnet ever holds nodes beyond the Mac
+and the VM, add a Tailscale ACL restricting port 8722 to those two machines.
 
 ## Troubleshooting
 

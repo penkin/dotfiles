@@ -34,3 +34,18 @@ When running inside herdr (`HERDR_ENV=1`):
   `hunk session ... --repo <repo>` commands to inspect the diff structure, navigate to
   specific files/hunks, and leave inline comments — don't run `hunk diff`/`hunk show`
   directly, that's the user-facing TUI the pane already runs.
+
+## Dictation
+
+When I ask you to "dictate", "read aloud", or "speak" something:
+
+- Pipe a spoken-friendly version to the `speak` command via stdin (a heredoc is fine).
+- Rewrite it for the ear: strip markdown syntax, expand abbreviations, replace code
+  blocks with a one-sentence summary each, and read file paths naturally ("the payroll
+  service in EJM dot API"), never literally.
+- Keep it under roughly two minutes of speech unless I ask for the full thing.
+- `speak stop` interrupts playback and clears the queue if I ask you to stop.
+
+`speak` works the same in every session: on the Mac it plays locally, and on the
+Azure VM it POSTs the text over Tailscale to the Mac, which speaks it. Nothing to
+configure per session.

@@ -19,13 +19,13 @@ SERVER_PKGS=(
 
 # Desktop profile additions (macOS GUI apps via cask)
 DESKTOP_CASKS=(
-  zed ghostty
+  zed ghostty hammerspoon
 )
 
 # Stow lists per profile
-STOW_CORE=(zsh git nvim ssh glow hunk)
+STOW_CORE=(bin zsh git nvim ssh glow hunk)
 STOW_SERVER=(lazygit yazi btop herdr)
-STOW_DESKTOP=(macos-tools ideavim)
+STOW_DESKTOP=(macos-tools ideavim hammerspoon)
 
 # macOS-specific bootstrap
 bootstrap_pkgmgr() {
@@ -56,6 +56,19 @@ install_skhd() {
   info "System Settings > Privacy & Security for the hotkey to work."
 }
 
+# setup_hammerspoon — Hammerspoon hosts speak-server, the queued TTS endpoint the
+# Azure VM POSTs to over Tailscale (see hammerspoon/.hammerspoon/speak-server.lua).
+# The cask itself installs with the others; this only prepares the config dir.
+# Pre-create ~/.hammerspoon as a real directory, for the same reason install.sh
+# does it for ~/.config/herdr: otherwise stow folds the whole directory into a
+# single symlink into the repo, and Hammerspoon's own runtime files (Spoons/,
+# console history) would be written inside the dotfiles. Desktop only.
+setup_hammerspoon() {
+  mkdir -p "$HOME/.hammerspoon"
+  info "Hammerspoon: launch it once after this run (open -a Hammerspoon) to start"
+  info "speak-server; thereafter 'open -g hammerspoon://reload' reloads the config."
+}
+
 # macOS-specific post-install (cask installs, ssh keychain config)
 post_install_os() {
   local cask
@@ -76,6 +89,7 @@ post_install_os() {
   # skhd: hotkey daemon for the SSH screenshot pipeline (desktop GUI only).
   if [[ "$DOTFILES_PROFILE" == "desktop" ]]; then
     install_skhd
+    setup_hammerspoon
   fi
 
   # Apple Keychain for SSH

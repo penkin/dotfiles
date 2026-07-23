@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# speak — text to speech, from anywhere, played on the Mac.
+#
+# On a machine with `say` (macOS) the text is spoken locally. Anywhere else
+# (the Azure VM) it is POSTed over Tailscale to the Mac's Hammerspoon
+# speak-server, which speaks it there — the VM never needs an audio stack, and
+# only text crosses the network.
+#
+# Usage:
+#   speak "some text"
+#   some-command | speak
+#   speak stop            # interrupt playback and clear the queue
+#
+# Environment:
+#   SPEAK_HOST   Mac's Tailscale MagicDNS name. Remote machines only; set it in
+#                ~/.zsh-local.sh (gitignored — see zsh/.zsh-local.sh.example).
+#   SPEAK_VOICE  Voice name; falls back to a stock voice if not installed.
+#   SPEAK_RATE   Words per minute (default 195).
+#   SPEAK_PORT   speak-server port (default 8722).
+
+set -euo pipefail
+
+RATE="${SPEAK_RATE:-195}"
+PORT="${SPEAK_PORT:-8722}"
+
+# --- Local playback (macOS) --------------------------------------------------
+if command -v say &>/dev/null; then
+  if [[ "${1:-}" == "stop" ]]; then
+    # Clear speak-server's queue first, if it's up. Killing `say` on its own is
+    # not enough: the server sees its task exit and immediately starts the next
+    # queued item, so a stop would only skip a track. Silent no-op when
+    # Hammerspoon isn't running, or when this Mac isn't the one hosting it.
+    if command -v curl &>/dev/null; then
+      printf 'stop' \
+        | curl -sf -m 2 -X POST --data-binary @- "http://localhost:${PORT}/stop" \
+          >/dev/null 2>&1 || true
+    fi
+    killall say 2>/dev/null || true
+    exit 0
+  fi
+
+  # The premium Siri voices are a manual download (System Settings →
+  # Accessibility → Spoken Content → Manage Voices), so degrade through a stock
+  # UK voice to the system default rather than failing on a fresh Mac.
+  say_args=(-r "$RATE")
+  for candidate in "${SPEAK_VOICE:-}" "Serena (Premium)" "Serena" "Daniel"; do
+    [[ -n "$candidate" ]] || continue
+    if say -v '?' | grep -qF "$candidate"; then
+      say_args+=(-v "$candidate")
+      break
+    fi
+  done
+
+  if [[ $# -gt 0 ]]; then
+    say "${say_args[@]}" "$*"
+  else
+    say "${say_args[@]}" -f -
+  fi
+  exit 0
+fi
+
+# --- Remote playback (VM → Mac over Tailscale) -------------------------------
+if ! command -v curl &>/dev/null; then
+  echo "speak: no 'say' and no 'curl' — cannot speak on this machine" >&2
+  exit 1
+fi
+
+MAC_HOST="${SPEAK_HOST:?not set — put 'export SPEAK_HOST=<mac-magicdns-name>' in ~/.zsh-local.sh}"
+URL="http://${MAC_HOST}:${PORT}"
+
+if [[ "${1:-}" == "stop" ]]; then
+  # The body is a placeholder the server ignores, but it must be non-empty:
+  # Hammerspoon's HTTP server answers a bodyless POST with a 400 before the
+  # callback ever runs, so a bare `-X POST` would never reach /stop.
+  printf 'stop' | curl -sf -m 3 -X POST --data-binary @- "${URL}/stop" >/dev/null
+  exit 0
+fi
+
+if [[ $# -gt 0 ]]; then
+  printf '%s' "$*" | curl -sf -m 5 -X POST --data-binary @- "${URL}/speak" >/dev/null
+else
+  curl -sf -m 5 -X POST --data-binary @- "${URL}/speak" >/dev/null
+fi
