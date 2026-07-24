@@ -145,11 +145,14 @@ if [[ "$DOTFILES_PROFILE" == "desktop" ]]; then
 fi
 
 # --- Claude Code shared config ---
-# The `claude` package's authored config (CLAUDE.md, hooks, skills, settings.json)
-# is shared across the per-alias config dirs (~/.claude-personal, ~/.claude-dsf)
-# via symlinks rather than stow, since those dirs aren't named `.claude`.
+# The `claude` package's authored config (CLAUDE.md, hooks, commands,
+# settings.json) is shared across the per-alias config dirs (~/.claude-personal,
+# ~/.claude-dsf) via symlinks rather than stow, since those dirs aren't named
+# `.claude`. Skills are wired separately — they're installed by the skills.sh
+# CLI into one canonical dir that both profiles point at (skills/README.md).
 info "Linking shared Claude config..."
 link_claude_configs
+link_claude_skills
 
 # --- Prune orphaned symlinks ---
 # Re-running install.sh restows current packages, but stow never removes links

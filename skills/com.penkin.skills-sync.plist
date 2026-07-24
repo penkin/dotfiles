@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Daily agent-skills sync. Install with:
+
+    cp ~/dotfiles/skills/com.penkin.skills-sync.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.penkin.skills-sync.plist
+
+  See skills/README.md.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.penkin.skills-sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/penkin/dotfiles/skills/sync.sh</string>
+    </array>
+
+    <!-- Daily at 09:00. If the Mac is asleep, launchd runs it once on wake. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- Don't fire on login/load; the calendar interval is the only trigger. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/penkin/Library/Logs/skills-sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/penkin/Library/Logs/skills-sync.log</string>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/penkin/dotfiles</string>
+
+    <!--
+      launchd hands over a bare PATH; sync.sh probes asdf/mise/Homebrew/nvm/bun
+      itself. This is a floor, not the whole story.
+    -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+
+    <!-- Skip a run rather than queue it up if the machine is under load. -->
+    <key>LowPriorityIO</key>
+    <true/>
+    <key>Nice</key>
+    <integer>5</integer>
+</dict>
+</plist>

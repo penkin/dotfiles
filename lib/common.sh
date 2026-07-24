@@ -141,7 +141,21 @@ backup_file() {
 # shared so one edit + `git pull` updates every profile. stow can't help here
 # (the dirs aren't named `.claude`), so we symlink the shared items directly.
 CLAUDE_CONFIG_DIRS=("$HOME/.claude-personal" "$HOME/.claude-dsf")
-CLAUDE_SHARED_ITEMS=(CLAUDE.md commands hooks skills settings.json)
+CLAUDE_SHARED_ITEMS=(CLAUDE.md commands hooks settings.json)
+
+# `skills` is deliberately NOT in CLAUDE_SHARED_ITEMS: skills are installed by
+# the skills.sh CLI rather than vendored here (see skills/README.md). The CLI
+# writes into $CLAUDE_CONFIG_DIR/skills, so pointing every profile at one
+# canonical dir lets a single CLI run serve both.
+#
+# This path must stay exactly two levels below $HOME. `skills add` copies folders
+# in here, but `skills update` replaces them with *relative* symlinks into the
+# store (../../.agents/skills/<name>), which only resolve from that depth. A
+# deeper path works until the first update, then silently breaks every skill.
+CLAUDE_SKILLS_DIR="$HOME/.claude-shared/skills"
+
+# Skills that stay in this repo because no upstream publishes them.
+CLAUDE_VENDORED_SKILLS=(human-writing)
 
 # link_claude_configs — point each Claude config dir's shared items at the
 # `claude` package. Real files/dirs already present are backed up first; existing
@@ -157,6 +171,26 @@ link_claude_configs() {
     done
     info "Linked shared Claude config → $dir"
   done
+}
+
+# link_claude_skills — point every profile's skills dir at the one canonical
+# CLI-managed dir, then link the vendored skills into it alongside whatever the
+# CLI has installed. `skills update` only touches paths named in its lockfile,
+# so CLI-managed and repo-managed entries coexist without either pruning the
+# other. Idempotent; safe to run before the CLI has ever run.
+link_claude_skills() {
+  local src="$DOTFILES_DIR/claude/.claude/skills"
+  local dir skill
+  mkdir -p "$CLAUDE_SKILLS_DIR"
+  for dir in "${CLAUDE_CONFIG_DIRS[@]}"; do
+    mkdir -p "$dir"
+    backup_file "$dir/skills"        # moves aside a real dir; no-op on symlinks
+    ln -sfn "$CLAUDE_SKILLS_DIR" "$dir/skills"
+  done
+  for skill in "${CLAUDE_VENDORED_SKILLS[@]}"; do
+    ln -sfn "$src/$skill" "$CLAUDE_SKILLS_DIR/$skill"
+  done
+  info "Linked skills → $CLAUDE_SKILLS_DIR (vendored: ${CLAUDE_VENDORED_SKILLS[*]})"
 }
 
 # install_claude_native — Anthropic's official installer drops a self-updating
