@@ -186,12 +186,59 @@ launchctl unload ~/Library/LaunchAgents/com.penkin.skills-sync.plist
 
 ### Linux (cron)
 
-```cron
-0 9 * * * mkdir -p ~/.local/state && ~/dotfiles/skills/sync.sh >> ~/.local/state/skills-sync.log 2>&1
+Install the entry without opening an editor. The `grep -v` makes this
+re-runnable — appending blind gives you two entries and two daily syncs:
+
+```sh
+(crontab -l 2>/dev/null | grep -v 'skills/sync.sh'; \
+ echo '0 9 * * * mkdir -p $HOME/.local/state && $HOME/dotfiles/skills/sync.sh >> $HOME/.local/state/skills-sync.log 2>&1') \
+ | crontab -
+crontab -l          # confirm
 ```
 
-`sync.sh` finds `npx` itself — it probes asdf, mise, Homebrew, nvm, bun and
-`~/.local/bin` before giving up, since cron and launchd provide almost no PATH.
+`$HOME` rather than `~`: tilde expansion normally works, since cron runs the
+command through `/bin/sh`, but cron sets `$HOME` explicitly from `/etc/passwd`
+and that removes the doubt.
+
+Check cron is actually running first — minimal images often ship without it:
+
+```sh
+systemctl status cron       # 'crond' on RHEL-family
+```
+
+To prove it fires without waiting for 09:00, add a temporary entry a few minutes
+out, watch the log, then remove it. Silence means cron isn't running or the entry
+didn't install.
+
+Note that machines in different timezones fire at different absolute times. That's
+fine — arguably better, since they won't contend on push — but the logs won't line up.
+
+### Before trusting either scheduler
+
+Run it by hand, then under an environment as bare as cron's:
+
+```sh
+~/dotfiles/skills/sync.sh --dry-run --verbose
+env -i HOME="$HOME" PATH=/usr/bin:/bin /bin/sh -c '~/dotfiles/skills/sync.sh --dry-run --verbose'
+```
+
+`--verbose` prints which `npx`/`node` got resolved, the thing most likely to
+differ on a fresh machine. `sync.sh` probes asdf, mise, nvm, bun, Homebrew and
+`~/.local/bin`, preferring version managers so an unattended run uses the same
+node an interactive shell would; it exits immediately with the searched PATH if
+it finds nothing.
+
+### Pushing from a scheduled run
+
+Scheduled runs get no ssh-agent. If the machine's git key has a passphrase the
+push fails; `sync.sh` warns, keeps the commit local and retries next run, so
+nothing breaks loudly — but repeated failures let local commits pile up until
+`git pull --ff-only` starts refusing, at which point that machine silently stops
+receiving updates. A repeated `push failed` in the log is the thing to watch for.
+
+In practice a machine that only consumes skills never commits: the catalog only
+changes when the skill *set* changes, and updates alone don't touch it. This only
+matters where you add or remove skills. Give those a passphraseless deploy key.
 
 ## Running it by hand
 
