@@ -16,6 +16,8 @@ delivery = "system"
 [ui]
 show_agent_labels_on_pane_borders = true
 
-agent_panel_scope = "all"
+# Panes share divider borders instead of being separated by a blank gap.
+pane_gaps = false
+
 [experimental]
 switch_ascii_input_source_in_prefix = true
