@@ -7,10 +7,17 @@ is_installed() {
 
 PKG_INSTALL="sudo apt-get install -y"
 
-# Packages reliably available in Ubuntu 22.04 LTS+ default repos
+# Packages reliably available in Ubuntu 22.04 LTS+ default repos.
+# neovim is deliberately absent — see install_neovim_from_release.
 CORE_PKGS=(
-  git zsh stow fzf neovim ripgrep mosh zoxide
+  git zsh stow fzf ripgrep mosh zoxide
 )
+
+# The nvim config targets 0.11+: lua/plugins/lsp.lua uses `vim.lsp.config`
+# (0.11), roslyn.lua uses `vim.fs.joinpath` (0.10), and treesitter.lua pins
+# nvim-treesitter's `main` branch, which requires 0.11. Anything older doesn't
+# degrade — it throws on startup.
+NVIM_MIN_VERSION="0.11.0"
 
 # Optional core (eza is in 24.04+; install conditionally)
 CORE_OPTIONAL_PKGS=(
@@ -51,7 +58,8 @@ post_install_os() {
     fi
   done
 
-  # asdf, lazygit: not in apt, install via release tarball.
+  # neovim, asdf, lazygit: not usefully in apt, install via release tarball.
+  install_neovim_from_release
   install_asdf_from_release
   install_lazygit_from_release
   # rustup before any cargo-based installs so they actually run on a fresh box.
@@ -89,6 +97,76 @@ install_rustup_or_skip() {
     # shellcheck source=/dev/null
     . "$HOME/.cargo/env"
   fi
+}
+
+# _version_ge A B — true when version A is at least version B.
+_version_ge() {
+  [[ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -1)" == "$2" ]]
+}
+
+# Echo the installed Neovim's version ("0.9.5"), or nothing if absent.
+_nvim_installed_version() {
+  command -v nvim &>/dev/null || return 0
+  nvim --version 2>/dev/null | sed -n '1s/^NVIM v\([0-9][0-9.]*\).*/\1/p'
+}
+
+# Neovim from upstream, never apt. Ubuntu freezes neovim for the life of a
+# release — 24.04 ships 0.9.5 and will never move — so an apt install silently
+# lands years behind the Homebrew/pacman builds the desktops get, and the shared
+# nvim config then fails to load. Unlike the other installers here this one
+# upgrades in place: finding *an* nvim isn't enough, it has to be new enough.
+install_neovim_from_release() {
+  local current asset stale tmpdir tarball url
+  current="$(_nvim_installed_version)"
+  if [[ -n "$current" ]] && _version_ge "$current" "$NVIM_MIN_VERSION"; then
+    info "neovim $current already installed (>= $NVIM_MIN_VERSION)"
+    return
+  fi
+
+  case "$(uname -m)" in
+    x86_64)  asset="nvim-linux-x86_64" ;;
+    aarch64) asset="nvim-linux-arm64"  ;;
+    *) warn "Unknown arch $(uname -m); skipping neovim"; return ;;
+  esac
+
+  info "Installing neovim from GitHub release (have ${current:-none}, need >= $NVIM_MIN_VERSION)..."
+  tmpdir=$(mktemp -d)
+  tarball="$tmpdir/nvim.tar.gz"
+  # Trailing quote in the pattern keeps this off the .sha256sum asset.
+  url=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest \
+    | grep "browser_download_url.*${asset}\.tar\.gz\"" | head -1 | cut -d '"' -f 4)
+  if [[ -z "$url" ]]; then
+    warn "Could not find neovim release URL; skipping"
+    rm -rf "$tmpdir"
+    return
+  fi
+  if ! curl -fsSL "$url" -o "$tarball"; then
+    warn "Could not download neovim; skipping"
+    rm -rf "$tmpdir"
+    return
+  fi
+  tar -xzf "$tarball" -C "$tmpdir"
+
+  # Drop apt's copy once we have a replacement in hand. /usr/local/bin already
+  # outranks /usr/bin on PATH, so this is about not leaving a stale second nvim
+  # (and its vi/vim/editor alternatives) on the box rather than about shadowing.
+  stale=()
+  if is_installed neovim; then stale+=(neovim); fi
+  if is_installed neovim-runtime; then stale+=(neovim-runtime); fi
+  if [[ ${#stale[@]} -gt 0 ]]; then
+    info "Removing apt neovim (${current:-unknown}) in favour of the upstream build"
+    sudo apt-get remove -y "${stale[@]}" || warn "Could not remove apt neovim"
+  fi
+
+  # The tarball is a self-contained tree (bin/, lib/, share/) whose runtime files
+  # must stay next to the binary. Keep it whole under /opt and expose only the
+  # binary, rather than merging loose files into /usr/local.
+  sudo rm -rf "/opt/$asset"
+  sudo mv "$tmpdir/$asset" "/opt/$asset"
+  sudo ln -sfn "/opt/$asset/bin/nvim" /usr/local/bin/nvim
+  rm -rf "$tmpdir"
+  hash -r 2>/dev/null || true
+  info "Installed neovim $(_nvim_installed_version) → /opt/$asset"
 }
 
 install_asdf_from_release() {

@@ -108,6 +108,9 @@ Notes:
 - This matters for `claude`: environment it (and tools it spawns like glow/hunk)
   needs — `CLAUDE_CONFIG_DIR`, `PATH`, `EDITOR` — is exported from `~/.zshenv`,
   so it's present in every zsh, but you still need to be *in* zsh for it to load.
+- `neovim` is installed from GitHub release into `/opt`, **not** apt — Ubuntu
+  pins neovim for the life of a release (24.04 is stuck on 0.9.5) and the nvim
+  config needs 0.11+. Re-running `install.sh` upgrades an older nvim in place.
 - `lazygit` is installed from GitHub release (not in apt).
 - `yazi` is installed via `cargo install yazi-fm yazi-cli` if Rust is present, otherwise skipped.
 - Optional packages (`eza`, `btop`) install if available on your Ubuntu version.
