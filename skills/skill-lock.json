@@ -49,6 +49,12 @@
       "sourceUrl": "https://github.com/modem-dev/hunk.git",
       "skillPath": "skills/hunk-review/SKILL.md"
     },
+    "llm-council": {
+      "source": "tenfoldmarc/llm-council-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/tenfoldmarc/llm-council-skill.git",
+      "skillPath": "SKILL.md"
+    },
     "penpot-audit-accessibility": {
       "source": "penpot/penpot-ai-kit",
       "sourceType": "github",
