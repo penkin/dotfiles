@@ -92,9 +92,9 @@ produce a state the manifest can't describe anyway.
 
 ```json
 "herdr": {
-  "source": "ogulcancelik/herdr",
+  "source": "herdrdev/herdr",
   "sourceType": "github",
-  "sourceUrl": "https://github.com/ogulcancelik/herdr.git",
+  "sourceUrl": "https://github.com/herdrdev/herdr.git",
   "skillPath": "skills/herdr/SKILL.md"
 }
 ```
@@ -120,6 +120,35 @@ hand-mangled machine repairs itself on the next run.
 > variable is set. `sync.sh` unsets it so every machine and every context — login
 > shell, cron, systemd — agrees on `~/.agents`. It warns if it finds a stray
 > lockfile at the XDG path.
+
+### When a source moves
+
+`skills update` resolves each skill at the exact `source` + `skillPath` recorded
+here. If upstream renames the repo, transfers it to an org, or relocates its
+`SKILL.md`, that lookup 404s and the run reports the skill as *deleted upstream*,
+then skips it. The wording points at the author having removed it; far more often
+the thing simply moved. Nothing breaks at that moment — the installed copy stays
+put and keeps working — so it's easy to scroll past until a fresh machine fails
+to restore it.
+
+Check before believing it. `gh api repos/<source> --jq .full_name` follows renames
+and transfers and reports where the repo actually lives now; browsing the tree
+finds a relocated `SKILL.md`. Then reinstall from the new location and sync:
+
+```sh
+npx skills remove <skill> -g
+npx skills add <new-owner>/<repo>@<skill> -g
+skills/sync.sh
+```
+
+No `--prune` — the skill never leaves the catalog, its source fields are just
+rewritten. Record the *new* canonical name, not the old one: GitHub redirects the
+vacated path, but that redirect dies the moment anyone creates a repo there.
+
+Worth checking the result is scoped to the skill and not the whole repo. A
+`skillPath` of `SKILL.md` at a repo root makes the CLI treat the entire checkout
+as the skill folder — `herdr` was 41M of Rust source and vendored deps until
+upstream moved its file down into `skills/herdr/`.
 
 ## Vendored skills
 
