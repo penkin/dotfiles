@@ -27,8 +27,7 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/productivity/grilling/SKILL.md",
-      "pluginName": "mattpocock-skills"
+      "skillPath": "skills/productivity/grilling/SKILL.md"
     },
     "handoff": {
       "source": "mattpocock/skills",
@@ -145,15 +144,13 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/triage/SKILL.md",
-      "pluginName": "mattpocock-skills"
+      "skillPath": "skills/engineering/triage/SKILL.md"
     },
     "wayfinder": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/wayfinder/SKILL.md",
-      "pluginName": "mattpocock-skills"
+      "skillPath": "skills/engineering/wayfinder/SKILL.md"
     }
   }
 }
