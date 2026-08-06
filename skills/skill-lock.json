@@ -37,10 +37,10 @@
       "pluginName": "mattpocock-skills"
     },
     "herdr": {
-      "source": "ogulcancelik/herdr",
+      "source": "herdrdev/herdr",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/ogulcancelik/herdr.git",
-      "skillPath": "SKILL.md"
+      "sourceUrl": "https://github.com/herdrdev/herdr.git",
+      "skillPath": "skills/herdr/SKILL.md"
     },
     "hunk-review": {
       "source": "modem-dev/hunk",
