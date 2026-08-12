@@ -47,6 +47,10 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"$CLAUDE_CONFIG_DIR/statusline-command.sh\""
+  },
   "worktree": {
     "baseRef": "fresh"
   },
