@@ -12,8 +12,7 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/domain-modeling/SKILL.md",
-      "pluginName": "mattpocock-skills"
+      "skillPath": "skills/engineering/domain-modeling/SKILL.md"
     },
     "grill-with-docs": {
       "source": "mattpocock/skills",
