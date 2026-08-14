@@ -1,11 +1,11 @@
 #!/bin/bash
-# Claude Code status line: model, directory, git branch, colour-coded context-usage bar.
+# Claude Code status line: model, git branch, colour-coded context-usage bar.
 
 input=$(cat)
 
 model=$(printf '%s' "$input" | jq -r '.model.display_name')
+# Used for the git lookup only; the directory is not shown, to keep the line short.
 dir=$(printf '%s' "$input" | jq -r '.workspace.current_dir')
-dir_display="${dir/#$HOME/~}"
 
 # Git branch (skip optional locks so this never blocks on a concurrent git operation)
 branch=""
@@ -49,7 +49,7 @@ if [ -n "$used" ]; then
   bar="${color}[${filled_bar}${empty_bar}] ${used_int}%${RESET}"
 fi
 
-line="${DIM}${model}${RESET} ${DIM}|${RESET} ${DIM}${dir_display}${RESET}"
+line="${DIM}${model}${RESET}"
 [ -n "$branch" ] && line="${line} ${DIM}|${RESET} ${DIM}${branch}${RESET}"
 [ -n "$bar" ] && line="${line} ${DIM}|${RESET} ${bar}"
 
