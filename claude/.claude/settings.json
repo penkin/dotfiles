@@ -47,12 +47,12 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "bash \"$CLAUDE_CONFIG_DIR/statusline-command.sh\""
-  },
-  "worktree": {
-    "baseRef": "fresh"
   },
   "enabledPlugins": {
     "chrome-devtools-mcp@claude-plugins-official": true,
@@ -69,8 +69,8 @@
       }
     }
   },
-  "effortLevel": "xhigh",
   "outputStyle": "ste",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
   "voice": {
     "enabled": true,
@@ -78,5 +78,38 @@
   },
   "theme": "dark",
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: Mix Forge (mix-forge on GitHub; Jira site mixforge.atlassian.net) — inferred from this repo's parent CLAUDE.md remotes (`firefly-backend`, `firefly-mobile` under `github.com/mix-forge`); this checkout itself has no remotes configured",
+      "**Cloud provider(s)**: Fly.io (staging: `mixforge-firefly-backend`, `mixforge-firefly-db`, Johannesburg/`jnb`)",
+      "**Repository visibility**: Not queryable here (no remotes on this checkout; gh check not derivable) — assume private per shipped default",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: `.envrc` (direnv) in `firefly-backend/` and `firefly-mobile/`; `firefly-backend/lib/firefly/secrets.ex`, `firefly-backend/config/prod.exs` — flagged sensitive, not to be printed or exfiltrated",
+      "**Default / protected branches**: `main`, protected in both `firefly-backend` and `firefly-mobile` per this repo's CLAUDE.md (PR-only, one approving review, checks green) — not independently verified via gh (no queryable remote from this checkout)",
+      "**CI/CD deploy targets**: Fly.io staging auto-deploys on push to `main` in `firefly-backend` (`mixforge-firefly-backend`, `mixforge-firefly-db`)",
+      "**Network posture**: None configured",
+      "**Source control**: `firefly-backend` (`git@github.com:mix-forge/firefly-backend.git`) and `firefly-mobile` (`git@github.com:mix-forge/firefly-mobile.git`), sibling repos under this container directory — no additional orgs configured",
+      "**Trusted internal domains**: `mixforge.atlassian.net` (Jira)",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: Fly.io staging backend `mixforge-firefly-backend` and DB `mixforge-firefly-db` (Johannesburg region)",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: `.envrc` files, `config/prod.exs`, `lib/firefly/secrets.ex` (credentials); user PII under POPIA (email filter_parameters, token expunging, Oban job retention) — share only with cleared engineering audiences",
+      "**Data retention / declassification**: None configured — note repo's own retention practice: Oban job rows pruned after 7 days, expired auth tokens expunged hourly (product behavior, not a config for this agent)",
+      "**Sensitive remote targets**: any namespace/host/container with `prod`/`production` as a whole word or segment — includes `firefly-backend/config/prod.exs` scope and Fly.io production (if any exists beyond the described staging)",
+      "**Protected deployment namespaces / environments**: Fly.io staging apps `mixforge-firefly-backend` / `mixforge-firefly-db` (deploys automatically on push to `main` — treat as a live deploy target, not a throwaway); otherwise fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (Firefly travel companion platform — Elixir/Phoenix/Ash backend, React Native mobile)",
+      "**Trusted repo**: This container directory (`/Users/penkin/sandbox/firefly/app`) holds two sibling repos, `firefly-backend` and `firefly-mobile`, each with its own `mix-forge` remote — treat each as its own trusted repo scoped to its own remote",
+      "**Org-specific CLIs**: `mix` (Elixir/Phoenix, 166 in-project + 23 shell uses), `pnpm` (mobile, 16 shell uses), Atlassian Rovo MCP tools for Jira (FMS board)",
+      "**Trusted repo qualifiers**: routine work under `firefly-backend/` and `firefly-mobile/` within this container is in-scope; work in sibling checkouts elsewhere under `~/sandbox` is out of scope for this project"
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Bash(mix ecto.drop:*) in firefly-backend",
+      "Bash(mix ash.reset:*) in firefly-backend"
+    ]
+  }
 }
