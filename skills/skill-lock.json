@@ -33,16 +33,22 @@
       "skillPath": "skills/productivity/handoff/SKILL.md"
     },
     "herdr": {
-      "source": "ogulcancelik/herdr",
+      "source": "herdrdev/herdr",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/ogulcancelik/herdr.git",
-      "skillPath": "SKILL.md"
+      "sourceUrl": "https://github.com/herdrdev/herdr.git",
+      "skillPath": "skills/herdr/SKILL.md"
     },
     "hunk-review": {
       "source": "modem-dev/hunk",
       "sourceType": "github",
       "sourceUrl": "https://github.com/modem-dev/hunk.git",
       "skillPath": "skills/hunk-review/SKILL.md"
+    },
+    "impeccable": {
+      "source": "pbakaus/impeccable",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/pbakaus/impeccable.git",
+      "skillPath": ".agents/skills/impeccable/SKILL.md"
     },
     "llm-council": {
       "source": "tenfoldmarc/llm-council-skill",
