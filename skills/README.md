@@ -145,6 +145,13 @@ No `--prune` — the skill never leaves the catalog, its source fields are just
 rewritten. Record the *new* canonical name, not the old one: GitHub redirects the
 vacated path, but that redirect dies the moment anyone creates a repo there.
 
+Do it on every machine. `sync.sh` regenerates the catalog from the lockfile of
+whichever machine happens to run it, so a box still holding the old source
+rewrites the corrected entry straight back on its next run, and the two machines
+flip the same four lines back and forth daily. The skill keeps working
+throughout, which is what makes it easy to miss. Only the *set* of skills
+propagates through the catalog; a corrected source does not.
+
 Worth checking the result is scoped to the skill and not the whole repo. A
 `skillPath` of `SKILL.md` at a repo root makes the CLI treat the entire checkout
 as the skill folder — `herdr` was 41M of Rust source and vendored deps until
