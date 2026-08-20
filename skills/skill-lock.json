@@ -132,15 +132,13 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/engineering/resolving-merge-conflicts/SKILL.md",
-      "pluginName": "mattpocock-skills"
+      "skillPath": "skills/engineering/resolving-merge-conflicts/SKILL.md"
     },
     "teach": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/productivity/teach/SKILL.md",
-      "pluginName": "mattpocock-skills"
+      "skillPath": "skills/productivity/teach/SKILL.md"
     },
     "triage": {
       "source": "mattpocock/skills",
