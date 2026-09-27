@@ -18,10 +18,8 @@
 #   . "$HOME/sandbox/google-cloud-sdk/completion.zsh.inc"
 # fi
 
-# Example: asdf-managed Java
-# if [ -r "$HOME/.asdf/plugins/java/set-java-home.bash" ]; then
-#   . "$HOME/.asdf/plugins/java/set-java-home.bash"
-# fi
+# Example: mise-managed Java
+# export JAVA_HOME="$(mise where java)"
 
 # Example: work-specific alias
 # alias myvm='ssh user@10.0.0.1'

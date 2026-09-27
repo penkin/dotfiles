@@ -17,6 +17,7 @@ path=(
   "$HOME/scripts"
   "$HOME/.local/bin"
   "$HOME/.cargo/bin"
+  "$HOME/.local/share/mise/shims"
   $path
   "$HOME/.local/share/nvim/mason/bin"
 )

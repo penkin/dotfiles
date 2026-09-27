@@ -108,13 +108,14 @@ esac
 # subprocesses inherit it). Re-prepend it here too: on macOS /etc/zprofile runs
 # path_helper *after* .zshenv but *before* .zshrc, pushing these user dirs behind
 # the system ones — re-running the prepend after the OS fragments restores their
-# precedence (and over asdf shims). `typeset -U` keeps it dedup'd, so this is a
-# no-op-on-order reassertion, not a second copy on PATH.
+# precedence (and puts mise shims ahead of Homebrew). `typeset -U` keeps it
+# dedup'd, so this is a no-op-on-order reassertion, not a second copy on PATH.
 typeset -U path PATH
 path=(
   "$HOME/scripts"
   "$HOME/.local/bin"
   "$HOME/.cargo/bin"
+  "$HOME/.local/share/mise/shims"
   $path
   "$HOME/.local/share/nvim/mason/bin"
 )
@@ -153,3 +154,7 @@ fi
 unset fzf_init
 
 eval "$(zoxide init --cmd cd zsh)"
+
+# Shims from ~/.zshenv cover non-interactive shells; activation adds
+# per-directory versions and tool env vars on top.
+command -v mise &> /dev/null && eval "$(mise activate zsh)"

@@ -1,5 +1,5 @@
 #!/bin/bash
-export DOTNET_ROOT="$HOME/.asdf/installs/dotnet/8.0.416"
-export PATH="$HOME/.asdf/installs/dotnet/8.0.416:$PATH"
+export DOTNET_ROOT="$(mise where dotnet@8)"
+export PATH="$DOTNET_ROOT:$PATH"
 
 exec ~/.local/netcoredbg/netcoredbg "$@"
