@@ -57,7 +57,7 @@
     "chrome-devtools-mcp@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "ponytail@ponytail": true,
-    "mattpocock-skills@claude-plugins-official": true,
+    "mattpocock-skills@claude-plugins-official": false,
     "mattpocock-skills@mattpocock": true
   },
   "extraKnownMarketplaces": {
