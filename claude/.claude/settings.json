@@ -40,7 +40,7 @@
       "Bash(gh * delete*)",
       "Bash(az * delete*)"
     ],
-    "defaultMode": "auto"
+    "defaultMode": "plan"
   },
   "worktree": {
     "baseRef": "fresh"
