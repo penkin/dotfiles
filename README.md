@@ -43,7 +43,7 @@ Stowed files are symlinks back into this repo, so edits are live immediately and
 | `git` | Git config, `hunk` as pager, `gh` credential helper | ✓ | ✓ |
 | `ssh` | SSH defaults with ControlMaster multiplexing | ✓ | ✓ |
 | `nvim` | Neovim config (Tokyo Night) | ✓ | ✓ |
-| `claude` | Claude Code: settings, status line, CLAUDE.md, output style | ✓ | ✓ |
+| `claude` | Claude Code: settings, status line, CLAUDE.md, output style, agents | ✓ | ✓ |
 | `herdr` | Terminal multiplexer | ✓ | ✓ |
 | `glow` | Markdown reader, Catppuccin Mocha | ✓ | ✓ |
 | `hunk` | Diff viewer, Catppuccin Mocha, side-by-side | ✓ | ✓ |
@@ -86,8 +86,8 @@ One setup, at `~/.claude` — no per-profile config dirs, no `CLAUDE_CONFIG_DIR`
 `claude/.claude/statusline.sh` draws two rows:
 
 ```
-~/Projects/dotfiles · main · Opus 5
-     ███████░░░  68k/100k 1.0M   ██████┃░░░  62% 2h14m   ███┃░░░░░░  31% 3d5h
+~/Projects/dotfiles · main · Opus 5.5
+     ███████░░░  68k/100k 200k   ██████┃░░░  62% 2h14m   ███┃░░░░░░  31% 3d5h
 ```
 
 Row two is the context window, then the 5-hour and 7-day rate-limit windows. The bright
@@ -99,9 +99,25 @@ percentage of a 1M window sits near zero all session and tells you nothing, wher
 quality does fall off past roughly 100k. The real window size prints dim at the end. Past
 100k the bar stays full, the count keeps climbing, and the gauge reads `DUMB`.
 
-`settings.json` sets `autoCompactWindow` to 200000. Without it, on a 1M-context model
-Claude compacts only at the model's own limit — which in practice means never, so sessions
-grow unbounded and every turn re-reads the whole context.
+`settings.json` pins `model` to `claude-opus-5-5` rather than following the account
+default, and saves `effortLevel: medium` for that one model under `modelSettings` — medium
+is Opus 5.5's own default and it carries most work. Keeping it per-model matters: a bare
+top-level `effortLevel` applies to every model you switch to, so each one loses its own
+default. Raise it with `/effort high` for a change that spans the whole project — a rename
+across many files is the case where medium misses the second occurrence — then `/effort
+auto` to fall back to the saved medium.
+
+Pinning Opus 5.5 also picks the 200k context window over the 1M one, which is why
+`autoCompactWindow` is 150000. The old value, 200000, is the model's own limit on that
+window — Claude would compact only when it was already out of room, which in practice
+means never. 150000 leaves the session somewhere to compact to.
+
+`env.CLAUDE_CODE_SUBAGENT_MODEL` is `sonnet`, so subagents doing read-only legwork don't
+bill Opus rates for it. A subagent's own `model:` frontmatter wins over that — `agents/`
+holds `scout`, a Haiku lookup agent for finding where something lives. The trade-off: the
+built-in `Plan`, `Explore` and `general-purpose` agents have no frontmatter to edit, so
+they follow the env var down to Sonnet too. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is
+deliberately unset, since it would override the agent files as well.
 
 **First link on a machine with an existing `~/.claude/settings.json`:** move it aside, or
 stow will refuse:

@@ -1,4 +1,5 @@
 {
+  "model": "claude-opus-5-5",
   "attribution": {
     "commit": "",
     "pr": ""
@@ -95,8 +96,15 @@
       ]
     }
   },
-  "effortLevel": "xhigh",
-  "autoCompactWindow": 200000,
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "autoCompactWindow": 150000,
   "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
   "voice": {
