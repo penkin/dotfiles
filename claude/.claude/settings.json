@@ -1,0 +1,125 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(dotnet *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+
+      "Bash(gh *)",
+      "Bash(az *)",
+
+      "Bash(rg *)",
+      "Bash(fd *)",
+      "Bash(jq *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(find *)",
+      "Bash(tree *)",
+      "Bash(wc *)",
+      "Bash(file *)",
+      "Bash(stat *)",
+
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(uv *)",
+      "Bash(cargo *)",
+      "Bash(go *)"
+    ],
+    "ask": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+
+      "Bash(git reset --hard*)",
+      "Bash(git clean *)",
+      "Bash(git worktree remove --force*)",
+
+      "Bash(gh * delete*)",
+      "Bash(az * delete*)"
+    ],
+    "defaultMode": "plan"
+  },
+
+  "showClearContextOnPlanAccept": true,
+
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "objects.githubusercontent.com",
+        "raw.githubusercontent.com",
+
+        "login.microsoftonline.com",
+        "management.azure.com",
+        "graph.microsoft.com",
+
+        "registry.npmjs.org",
+        "api.nuget.org",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "crates.io",
+        "static.crates.io",
+        "proxy.golang.org",
+        "sum.golang.org"
+      ]
+    }
+  },
+
+  "worktree": {
+    "baseRef": "fresh"
+  },
+
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"$HOME/.claude/statusline.sh\""
+  },
+
+  "extraKnownMarketplaces": {
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+
+  "enabledPlugins": {
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "ponytail@ponytail": true
+  },
+
+  "outputStyle": "ste",
+  "effortLevel": "xhigh",
+  "autoCompactWindow": 200000,
+
+  "tui": "fullscreen",
+  "theme": "dark",
+
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "voiceEnabled": true,
+
+  "skipAutoPermissionPrompt": true
+}

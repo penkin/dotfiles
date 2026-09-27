@@ -1,0 +1,6 @@
+\.git
+\.gitignore
+^/README.*
+^/link\.sh$
+.*\.md$
+\.DS_Store

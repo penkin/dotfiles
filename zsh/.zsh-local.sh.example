@@ -1,0 +1,27 @@
+# Machine-local zsh fragment.
+#
+# This file is sourced by ~/.zshrc after the OS-specific fragment.
+# It is gitignored — put anything machine-, work-, or host-specific here:
+#
+#   - Hardcoded paths to SDKs you only have on this machine
+#   - Work-only aliases with company UUIDs/secrets
+#   - Per-host PATH additions
+#
+# Copy this file to ~/.zsh-local.sh and edit:
+#   cp zsh/.zsh-local.sh.example ~/.zsh-local.sh
+
+# Example: gcloud SDK
+# if [ -f "$HOME/sandbox/google-cloud-sdk/path.zsh.inc" ]; then
+#   . "$HOME/sandbox/google-cloud-sdk/path.zsh.inc"
+# fi
+# if [ -f "$HOME/sandbox/google-cloud-sdk/completion.zsh.inc" ]; then
+#   . "$HOME/sandbox/google-cloud-sdk/completion.zsh.inc"
+# fi
+
+# Example: asdf-managed Java
+# if [ -r "$HOME/.asdf/plugins/java/set-java-home.bash" ]; then
+#   . "$HOME/.asdf/plugins/java/set-java-home.bash"
+# fi
+
+# Example: work-specific alias
+# alias myvm='ssh user@10.0.0.1'

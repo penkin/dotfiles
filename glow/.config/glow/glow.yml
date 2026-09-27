@@ -1,0 +1,7 @@
+style: auto
+pager: true
+width: 80
+preserve-new-lines: false
+line-numbers: false
+mouse: false
+all: false

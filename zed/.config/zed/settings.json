@@ -1,0 +1,32 @@
+{
+  "base_keymap": "JetBrains",
+  "vim_mode": false,
+
+  "theme": {
+    "mode": "system",
+    "light": "Ayu Light",
+    "dark": "Catppuccin Mocha"
+  },
+  "icon_theme": "Catppuccin Mocha",
+  "ui_font_size": 16,
+  "buffer_font_size": 16,
+
+  "terminal": {
+    "font_fallbacks": ["ZedMono Nerd Font Mono"]
+  },
+
+  "agent": {
+    "dock": "left",
+    "always_allow_tool_actions": true
+  },
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
+
+  "project_panel": { "dock": "right" },
+  "outline_panel": { "dock": "right" },
+  "collaboration_panel": { "dock": "right" },
+  "git_panel": { "dock": "right" }
+}

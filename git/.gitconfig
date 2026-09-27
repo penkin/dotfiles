@@ -1,0 +1,28 @@
+[init]
+	defaultBranch = main
+
+[user]
+	email = chris@penkin.me
+	name = Christopher Penkin
+
+[core]
+	autocrlf = input
+  pager = hunk pager
+
+[merge]
+    conflictstyle = zdiff3   # cleaner merge conflicts
+
+[diff]
+    colorMoved = default
+
+# Machine-local overrides (gitignored): GPG signing key, gpg.program path,
+# commit.gpgsign — only present on machines set up to sign. A missing file is
+# silently ignored, so other machines (e.g. servers) just don't sign.
+[include]
+	path = ~/.gitconfig.local
+[credential "https://github.com"]
+	helper = 
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !gh auth git-credential
