@@ -1,5 +1,7 @@
 {
-  "model": "claude-opus-5-5",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
   "attribution": {
     "commit": "",
     "pr": ""
@@ -43,6 +45,7 @@
     ],
     "defaultMode": "plan"
   },
+  "model": "claude-opus-5-5",
   "worktree": {
     "baseRef": "fresh"
   },
@@ -99,10 +102,10 @@
   "modelSettings": {
     "claude-opus-5-5": {
       "effortLevel": "medium"
+    },
+    "claude-opus-5": {
+      "effortLevel": "high"
     }
-  },
-  "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "autoCompactWindow": 150000,
   "showClearContextOnPlanAccept": true,
