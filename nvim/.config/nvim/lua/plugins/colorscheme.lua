@@ -1,6 +1,11 @@
+-- Both schemes stay installed and configured. Tokyo Night is the one applied at
+-- startup; switch at runtime with `:colorscheme catppuccin`.
 return {
   {
     "folke/tokyonight.nvim",
+    lazy = false,
+    -- Configured first so that catppuccin's `colorscheme` call is the one
+    -- that lands.
     priority = 1000,
     config = function()
       require("tokyonight").setup({
@@ -21,6 +26,35 @@ return {
           hl.CursorTerminal = { bg = "#9ece6a", fg = colors.bg }
         end,
       })
+    end,
+  },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = false,
+    priority = 999,
+    config = function()
+      require("catppuccin").setup({
+        flavour = "mocha",
+        custom_highlights = function(colors)
+          return {
+            CursorLine = { bg = colors.surface0 },
+            DapBreakpoint = { fg = colors.red },
+            DapBreakpointLine = { bg = "#2d1a1a" },
+            DapStopped = { fg = colors.green },
+            DapStoppedLine = { bg = "#1a2d1a" },
+
+            -- Cursor colors for different modes
+            CursorNormal = { bg = colors.blue, fg = colors.base },
+            CursorInsert = { bg = colors.green, fg = colors.base },
+            CursorVisual = { bg = colors.mauve, fg = colors.base },
+            CursorReplace = { bg = colors.red, fg = colors.base },
+            CursorCommand = { bg = colors.yellow, fg = colors.base },
+            CursorTerminal = { bg = colors.teal, fg = colors.base },
+          }
+        end,
+      })
+
       vim.cmd.colorscheme("tokyonight-night")
 
       -- Set cursor mode

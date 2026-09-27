@@ -23,8 +23,18 @@ gui:
       - '#f9e2af'
   authorColors:
     '*': '#b4befe'
+
+# lazygit renames config keys between releases and rewrites this file in place
+# on first run. Stow makes it a writable symlink into the repo, so a migration
+# would land here as an uncommitted diff. Keep the schema current by hand:
+# below is lazygit 0.65.1's, where git.pagers became git.diffRenderers and
+# `pager` became `command`. `useConfig` is gone; --paging=never does that job.
+#
+# --line-numbers, not --color-only: the two are exclusive, and --color-only
+# suppresses delta's line numbers.
 git:
-  pagers:
-    - colorArg: always
-      pager: delta --color-only --dark
-      useConfig: false
+  diffRenderers:
+    - type: stdinFilter
+      name: delta
+      colorArg: always
+      command: delta --dark --line-numbers --paging=never

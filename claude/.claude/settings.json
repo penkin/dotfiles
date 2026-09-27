@@ -3,17 +3,14 @@
     "commit": "",
     "pr": ""
   },
-
   "permissions": {
     "allow": [
       "Bash(git *)",
       "Bash(dotnet *)",
       "Bash(npm *)",
       "Bash(npx *)",
-
       "Bash(gh *)",
       "Bash(az *)",
-
       "Bash(rg *)",
       "Bash(fd *)",
       "Bash(jq *)",
@@ -26,7 +23,6 @@
       "Bash(wc *)",
       "Bash(file *)",
       "Bash(stat *)",
-
       "Bash(python *)",
       "Bash(python3 *)",
       "Bash(uv *)",
@@ -38,55 +34,26 @@
       "Bash(git push -f*)",
       "Bash(git push * --force*)",
       "Bash(git push * -f*)",
-
       "Bash(git reset --hard*)",
       "Bash(git clean *)",
       "Bash(git worktree remove --force*)",
-
       "Bash(gh * delete*)",
       "Bash(az * delete*)"
     ],
-    "defaultMode": "plan"
+    "defaultMode": "auto"
   },
-
-  "showClearContextOnPlanAccept": true,
-
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "network": {
-      "allowedDomains": [
-        "github.com",
-        "api.github.com",
-        "codeload.github.com",
-        "objects.githubusercontent.com",
-        "raw.githubusercontent.com",
-
-        "login.microsoftonline.com",
-        "management.azure.com",
-        "graph.microsoft.com",
-
-        "registry.npmjs.org",
-        "api.nuget.org",
-        "pypi.org",
-        "files.pythonhosted.org",
-        "crates.io",
-        "static.crates.io",
-        "proxy.golang.org",
-        "sum.golang.org"
-      ]
-    }
-  },
-
   "worktree": {
     "baseRef": "fresh"
   },
-
   "statusLine": {
     "type": "command",
     "command": "bash \"$HOME/.claude/statusline.sh\""
   },
-
+  "enabledPlugins": {
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "ponytail@ponytail": true
+  },
   "extraKnownMarketplaces": {
     "mattpocock": {
       "source": {
@@ -101,25 +68,40 @@
       }
     }
   },
-
-  "enabledPlugins": {
-    "chrome-devtools-mcp@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "ponytail@ponytail": true
-  },
-
   "outputStyle": "ste",
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "objects.githubusercontent.com",
+        "raw.githubusercontent.com",
+        "login.microsoftonline.com",
+        "management.azure.com",
+        "graph.microsoft.com",
+        "registry.npmjs.org",
+        "api.nuget.org",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "crates.io",
+        "static.crates.io",
+        "proxy.golang.org",
+        "sum.golang.org"
+      ]
+    }
+  },
   "effortLevel": "xhigh",
   "autoCompactWindow": 200000,
-
+  "showClearContextOnPlanAccept": true,
   "tui": "fullscreen",
-  "theme": "dark",
-
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
-  "voiceEnabled": true,
-
-  "skipAutoPermissionPrompt": true
+  "theme": "dark",
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
 }

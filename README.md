@@ -66,7 +66,8 @@ Install these yourself; this repo does not.
 no npx. It also needs a Nerd Font in the terminal for its gauge glyphs.
 
 **Referenced by config, so worth having:** `nvim`, `hunk` (git's pager — git falls back to
-its own if absent), `herdr`, `glow`, `lazygit`, `yazi`, `btop`, `fzf`, `zoxide`, `eza`, `rg`.
+its own if absent), `herdr`, `glow`, `lazygit`, `delta` (lazygit's
+diff renderer), `yazi`, `btop`, `fzf`, `zoxide`, `eza`, `rg`.
 
 **macOS only:** Ghostty, Zed, and the JetBrainsMono Nerd Font:
 

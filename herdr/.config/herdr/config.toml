@@ -21,3 +21,20 @@ pane_gaps = false
 
 [experimental]
 switch_ascii_input_source_in_prefix = true
+
+# Ride the host terminal's colours, then override the tab row so the active tab
+# carries Catppuccin blue instead of herdr's own accent. Ported from the Nix
+# config (themes/catppuccin-mocha/herdr.nix).
+[theme]
+name = "terminal"
+
+[theme.tabs]
+bar_bg = "#181825"
+number_fg = "#1e1e2e"
+number_bg = "#585b70"
+fg = "#cdd6f4"
+bg = "#313244"
+active_number_fg = "#1e1e2e"
+active_number_bg = "#89b4fa"
+active_fg = "#cdd6f4"
+active_bg = "#45475a"
