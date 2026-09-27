@@ -3,7 +3,7 @@
 # as its own row:
 #
 #   ~/Projects/dotfiles · main · Opus 5
-#        ███████░░░  68k/100k 1.0M   ██████┃░░░  62% 2h14m   ███┃░░░░░░  31% 3d5h
+#        ■■■■■■■···  68k/100k 1.0M   ■■■■■■┃···  62% 2h14m   ■■■┃······  31% 3d5h
 #
 # The context gauge is scaled to 100k tokens, not to the window. A model is
 # sharp through roughly its first 100k tokens and duller after that, so 100k is
@@ -118,6 +118,15 @@ printf -v clock    ''  # nf-fa-clock_o
 printf -v calendar ''  # nf-fa-calendar
 printf -v context  ''  # nf-fa-database
 
+# Each mark sits on a coloured block, one colour per gauge. A mark drawn in a
+# foreground colour alone carries the same weight as the bar beside it and
+# reads as part of it. The foreground here is Catppuccin base, so the mark
+# reads as cut out of the block. The three hues are the 256-colour nearest of
+# Catppuccin Mocha blue, green and peach, so the row matches the terminal.
+ctx_badge="$esc[38;5;235;48;5;111m $context $reset"
+five_badge="$esc[38;5;235;48;5;151m $clock $reset"
+week_badge="$esc[38;5;235;48;5;216m $calendar $reset"
+
 now=$(date +%s)
 
 # A ten-cell bar. Filled cells are what the window has spent. `slot` is the
@@ -140,9 +149,9 @@ draw() {
     if [ "$i" -eq "$slot" ]; then
       bar="${bar}${pacer}┃${colour}"
     elif [ "$i" -lt "$filled" ]; then
-      bar="${bar}█"
+      bar="${bar}■"
     else
-      bar="${bar}${dim}░${colour}"
+      bar="${bar}${dim}·${colour}"
     fi
     i=$((i + 1))
   done
@@ -291,16 +300,16 @@ row1="$fg$short$reset"
 row2=""
 gap="    "
 if [ "$ctx_tokens" -ge 0 ]; then
-  row2="$row2$gap$dim$context$reset $(meter "$ctx_tokens")"
+  row2="$row2$gap$ctx_badge $(meter "$ctx_tokens")"
   [ "$ctx_size" -gt 0 ] && row2="$row2 $dim$(window_label "$ctx_size")$reset"
   gap="   "
 fi
 if [ "$five_pct" -ge 0 ]; then
-  row2="$row2$gap$dim$clock$reset $(gauge "$five_pct" 18000 "$five_reset") $dim$(countdown "$five_reset")$reset"
+  row2="$row2$gap$five_badge $(gauge "$five_pct" 18000 "$five_reset") $dim$(countdown "$five_reset")$reset"
   gap="   "
 fi
 if [ "$week_pct" -ge 0 ]; then
-  row2="$row2$gap$dim$calendar$reset $(gauge "$week_pct" 604800 "$week_reset") $dim$(countdown "$week_reset")$reset"
+  row2="$row2$gap$week_badge $(gauge "$week_pct" 604800 "$week_reset") $dim$(countdown "$week_reset")$reset"
 fi
 
 printf '%s\n' "$row1"
