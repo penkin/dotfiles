@@ -1,0 +1,11 @@
+[tools]
+codex = "latest"
+elixir = "latest"
+erlang = "latest"
+gh = "latest"
+node = "26.8.2"
+pnpm = "latest"
+python = "latest"
+
+[settings.upgrade]
+auto_prune = false

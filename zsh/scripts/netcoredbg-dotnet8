@@ -1,5 +1,0 @@
-#!/bin/bash
-export DOTNET_ROOT="$(mise where dotnet@8)"
-export PATH="$DOTNET_ROOT:$PATH"
-
-exec ~/.local/netcoredbg/netcoredbg "$@"

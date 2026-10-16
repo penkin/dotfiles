@@ -1,0 +1,12 @@
+Cendre for Omarchy
+Source palette: https://cendretheme.com/
+Upstream: https://github.com/Aejkatappaja/cendre
+Depth: hard. Ember accent with brass active-border gradient.
+Uses native Omarchy templates for the shell, terminals and supported apps.
+
+Wallpapers generated with built-in imagegen. Original wallpaper used only as a rendering/mood reference.
+
+Apply: omarchy theme set cendre
+Cycle wallpapers: omarchy theme bg next
+Restore previous theme: omarchy theme set tokyo-night
+Prior active theme snapshot: ~/.local/share/cendre-theme/previous-current

@@ -1,39 +1,26 @@
-# Runtime data and credentials
-**/gcloud/
-**/.local/share/
-**/.local/state/
+# Local files and secrets
+*.backup-*
+*.pem
+*.key
+.env
+.env.*
+!.env.example
 
-# Package-specific runtime files
-nvim/.config/nvim/lazy-lock.json
-zed/.config/zed/conversations/
-zed/.config/zed/prompts/
+# Images stay outside this configuration repository.
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.bmp
+*.svg
+*.ico
+*.avif
+*.tif
+*.tiff
 
-# OS-specific files
+# Editor and operating system noise
 .DS_Store
-**/.DS_Store
-
-# Backup files
-*.bak
-*~
-
-# IDE
-.idea/
+Thumbs.db
 *.swp
 *.swo
-.shada
-.nvim.lua
-
-# Machine-local zsh fragment (gcloud paths, work aliases, etc.)
-zsh/.zsh-local.sh
-
-# Machine-local git fragment (GPG signing key, gpg.program path, gpgsign)
-git/.gitconfig.local
-
-# Host-specific SSH config blocks (work hosts, secrets in hostnames, etc.)
-ssh/.ssh/config.d/*
-!ssh/.ssh/config.d/.gitkeep
-
-# Claude Code working-copy state: agent worktrees (full checkouts of this repo)
-# and this copy's permission grants. Both are per-machine, never shared.
-.claude/worktrees/
-.claude/settings.local.json
