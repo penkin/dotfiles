@@ -32,5 +32,6 @@ require("default.hypr.toggles")
 o.window("^Emulator$", { float = true })
 
 -- Give mail apps 98% width, leaving room to peek at a neighbouring column.
-o.window("^chrome-mail\\.google\\.com__-Default$", { scrolling_width = 0.98 })
-o.window("^chrome-mail\\.proton\\.me__-Default$", { scrolling_width = 0.98 })
+-- Web app classes include the URL path (e.g. __mail_u_0_), so match any path.
+o.window("^chrome-mail\\.google\\.com__.*-Default$", { scrolling_width = 0.98 })
+o.window("^chrome-mail\\.proton\\.me__.*-Default$", { scrolling_width = 0.98 })
