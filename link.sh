@@ -1,32 +1,40 @@
 #!/usr/bin/env bash
-#
-# Symlink this repo's config into $HOME with GNU Stow. That is all it does:
-# nothing is installed, nothing is downloaded, no system state is changed.
-# See README.md for the tools you need on the machine first.
-#
-# Idempotent — `--restow` re-links cleanly, so this doubles as the updater
-# after a `git pull`.
 
 set -euo pipefail
-cd "$(dirname "$0")"
 
-# Config that makes sense on any machine, desktop or server.
-COMMON=(zsh git ssh nvim claude herdr glow hunk lazygit yazi btop ideavim)
-
-# GUI applications — macOS only.
-MACOS=(ghostty zed)
-
-case "$(uname -s)" in
-  Darwin) PKGS=("${COMMON[@]}" "${MACOS[@]}") ;;
-  Linux)  PKGS=("${COMMON[@]}") ;;
-  *) echo "unsupported platform: $(uname -s)" >&2; exit 1 ;;
-esac
+repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+packages=(omarchy nvim bash)
+timestamp="$(date +%Y%m%d%H%M%S)"
 
 if ! command -v stow >/dev/null 2>&1; then
-  echo "stow is not installed. See README.md." >&2
+  printf 'GNU Stow is required. Install it with: omarchy pkg add stow\n' >&2
   exit 1
 fi
 
-echo "Linking: ${PKGS[*]}"
-stow --restow --target="$HOME" "${PKGS[@]}"
-echo "Done."
+# Preserve existing settings before Stow replaces them. Files already linked
+# to this checkout are left in place so the script can be run repeatedly.
+for package in "${packages[@]}"; do
+  package_dir="$repo_dir/$package"
+  while IFS= read -r -d '' source_path; do
+    relative_path="${source_path#"$package_dir/"}"
+    target_path="$HOME/$relative_path"
+    if [[ ! -e "$target_path" && ! -L "$target_path" ]]; then
+      continue
+    fi
+
+    if [[ "$(realpath -m -- "$source_path")" == "$(realpath -m -- "$target_path")" ]]; then
+      continue
+    fi
+
+    backup_path="$target_path.backup-$timestamp"
+    if [[ -e "$backup_path" || -L "$backup_path" ]]; then
+      printf 'Backup path already exists: %s\n' "$backup_path" >&2
+      exit 1
+    fi
+    mv -- "$target_path" "$backup_path"
+    printf 'Backed up %s to %s\n' "$target_path" "$backup_path"
+  done < <(find "$package_dir" \( -type f -o -type l \) -print0)
+done
+
+stow --restow --target="$HOME" "${packages[@]}"
+printf 'Linked: %s\n' "${packages[*]}"
